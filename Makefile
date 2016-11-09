@@ -1,0 +1,30 @@
+#******************************************************************************#
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: cyildiri <marvin@42.fr>                    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2016/11/08 19:17:08 by cyildiri          #+#    #+#              #
+#    Updated: 2016/11/08 19:17:11 by cyildiri         ###   ########.fr        #
+#                                                                              #
+#******************************************************************************#
+
+NAME = fdf
+SRC = fdf.c
+OFILES = fdf.o
+INCLUDES = minilibx_macos/mlx.h
+all: $(NAME)
+	
+$(NAME):
+	make -C minilibx_macos/
+	gcc -Wall -Wextra -Werror -c $(SRC) -I minilibx_macos/ 
+	gcc -o $(NAME) $(OFILES) -I minilibx_macos/ -L minilibx_macos/ -lmlx
+
+clean:
+	rm -r $(OFILES)
+
+fclean: clean
+	rm $(NAME)
+
+re: fclean all
