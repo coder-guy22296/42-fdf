@@ -18,8 +18,8 @@ all: $(NAME)
 	
 $(NAME):
 	make -C minilibx_macos/
-	gcc -Wall -Wextra -Werror -c $(SRC) -I minilibx_macos/ 
-	gcc -o $(NAME) $(OFILES) -I minilibx_macos/ -L minilibx_macos/ -lmlx
+	gcc -Wall -Wextra -Werror -c $(SRC)
+	gcc -o $(NAME) $(OFILES) -I minilibx_macos/ -L minilibx_macos/ -lmlx -framework OpenGL -framework AppKit
 
 clean:
 	rm -r $(OFILES)
