@@ -22,9 +22,11 @@ $(NAME):
 	gcc -o $(NAME) $(OFILES) -I minilibx_macos/ -L minilibx_macos/ -lmlx -framework OpenGL -framework AppKit
 
 clean:
-	rm -r $(OFILES)
+	rm -rf $(OFILES)
+	make -C minilibx_macos/ clean
 
 fclean: clean
-	rm $(NAME)
+	make -C minilibx_macos/ clean
+	rm -f $(NAME)
 
 re: fclean all
