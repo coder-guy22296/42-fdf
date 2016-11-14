@@ -171,7 +171,7 @@ void drawline(void *mlx, void *window, t_point point_a, t_point point_b)
 		ydir = -1;
 	error += deltaerr;
 	//printf("xdir:%d ydir:%d slope:%f deltaerr:%f\n", xdir, ydir, slope, deltaerr);
-	while ((deltaerr > 1.0 || deltax == 0) && y != point_b.y + ydir)
+	while ((deltaerr > 1.0 || deltax == 0) && y != point_b.y)
 	{
 		mlx_pixel_put(mlx, window, x+500, y+500, 0x00FF00FF);
 		//printf("case2: rendered(%d,%d) error:%f\n", x, y, error);
@@ -183,7 +183,7 @@ void drawline(void *mlx, void *window, t_point point_a, t_point point_b)
 		}
 		y += ydir;
 	}
-	while (deltaerr <= 1.0 && x != point_b.x + xdir)
+	while (deltaerr <= 1.0 && x != point_b.x)
 	{
 		mlx_pixel_put(mlx, window, x+500, y+500, 0x00FF00FF);
 		//printf("case1: rendered(%d,%d) error:%f\n", x, y, error);
@@ -286,7 +286,7 @@ int main()
 	int vertex_ind[] = {	0,1,2,3,		//FRONT
 							4,5,6,7,		//BACK
 							4,5,1,0,		//TOP
-							6,7,2,3,		//BOTTOM
+							7,6,2,3,		//BOTTOM
 							1,5,6,2,		//LEFT
 							0,4,7,3			//RIGHT
 						 };
