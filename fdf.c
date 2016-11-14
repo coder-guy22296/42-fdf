@@ -155,7 +155,7 @@ void drawline(void *mlx, void *window, t_point point_a, t_point point_b)
 	int		deltay = point_b.y - point_a.y;
 	double	slope;
 	if (deltax == 0)
-		slope = 0.0;
+		slope = 0;
 	else 
 		slope = (double)deltay/(double)deltax;
 	double	error = -1.0;
@@ -171,10 +171,22 @@ void drawline(void *mlx, void *window, t_point point_a, t_point point_b)
 		ydir = -1;
 	error += deltaerr;
 	//printf("xdir:%d ydir:%d slope:%f deltaerr:%f\n", xdir, ydir, slope, deltaerr);
-	while (deltaerr < 1.0 && x != point_b.x + xdir)
+	while ((deltaerr > 1.0 || deltax == 0) && y != point_b.y + ydir)
 	{
 		mlx_pixel_put(mlx, window, x+500, y+500, 0x00FF00FF);
-		printf("case1: rendered(%d,%d) error:%f\n", x, y, error);
+		//printf("case2: rendered(%d,%d) error:%f\n", x, y, error);
+		error += deltaerr;
+		if (error >= 0.0)
+		{
+			x += xdir;
+			error -= 1.0;
+		}
+		y += ydir;
+	}
+	while (deltaerr <= 1.0 && x != point_b.x + xdir)
+	{
+		mlx_pixel_put(mlx, window, x+500, y+500, 0x00FF00FF);
+		//printf("case1: rendered(%d,%d) error:%f\n", x, y, error);
 		error += deltaerr;
 		if (error >= 0.0)
 		{
@@ -184,18 +196,6 @@ void drawline(void *mlx, void *window, t_point point_a, t_point point_b)
 		}
 		x += xdir;
 		//printf("major shift\n");
-	}
-	while (deltaerr >= 1.0 && y != point_b.y + ydir)
-	{
-		mlx_pixel_put(mlx, window, x+500, y+500, 0x00FF00FF);
-		printf("case2: rendered(%d,%d) error:%f\n", x, y, error);
-		error += deltaerr;
-		if (error >= 0.0)
-		{
-			x += xdir;
-			error -= 1.0;
-		}
-		y += ydir;
 	}
 }
 
