@@ -83,6 +83,14 @@ t_point *new_point(int x, int y)
 	return (new);
 }
 
+t_point point(int x, int y)
+{
+	t_point new;
+	new.x = x;
+	new.y = y;
+	return (new);
+}
+
 /*
 **	allocates and initializes a 3d point struct
 **	delete with free()
@@ -130,129 +138,76 @@ t_3d_object *new_3d_object(parameters)
 	return (new);
 }*/
 
-int *projection(t_3d_point coord/*, t_3d_scene scene*/)
+t_point projection(t_3d_point coord/*, t_3d_scene scene*/)
 {
-	int *point;
+	t_point point;
 	int viewerpos[] = {1, 1, 50};
-	point = (int *)malloc(sizeof(int) * 2);//needs protection
-	point[X] = ((viewerpos[Z] / coord.z) * coord.x) - viewerpos[X];
-	point[Y] = ((viewerpos[Z] / coord.z) * coord.y) - viewerpos[Y];
-	printf("(%d,%d,%d) projected -> (%d,%d)\n", coord.x, coord.y, coord.z, point[X], point[Y]);
+	point.x = ((viewerpos[Z] / coord.z) * coord.x) - viewerpos[X];
+	point.y = ((viewerpos[Z] / coord.z) * coord.y) - viewerpos[Y];
+	printf("(%d,%d,%d) projected -> (%d,%d)\n", coord.x, coord.y, coord.z, point.x, point.y);
 	///exit(1);
 	return (point);
 }
 
-void drawline(void *mlx, void *window, int x0, int y0, int x1, int y1)
+void drawline(void *mlx, void *window, t_point point_a, t_point point_b)
 {
-	double deltax = 0;
-	double deltay = 0;
-	double error;
-	double deltaerror;
-	int stop = 0;
-	int x = 0;
-	int y = 0;
-	printf("linedraw call:\n");
-	printf("*********************************************************************\n");
-	/*if (x1 >= x0)
-	{
-		deltax = x1 - x0;
-	}
-	else if (x0 >= x1)
-	{*/
-		deltax = x1 - x0;
-	/*} 
-	if (y1 >= y0)
-	{
-		deltay = y1 - y0;
-	}
-	else if (y0 >= y1)
-	{*/
-		deltay = y1 - y0;
-	/*}*/
-	
-	error = -1.0;
-	printf("dx:%f dy:%f\n", deltax, deltay);
-	if ( deltay/deltax <= 1/* && x0 != -26 && x1 != -251*/)
-	{
-		//printf("dx:%f dy:%f", deltax, deltay);
-		//exit(1);
+	int		deltax = point_b.x - point_a.x;
+	int		deltay = point_b.y - point_a.y;
+	double	slope;
+	if (deltax == 0)
+		slope = 0.0;
+	else 
+		slope = (double)deltay/(double)deltax;
+	double	error = -1.0;
+	double	deltaerr = fabs(slope);
+	int		xdir = 1;
+	int		ydir = 1;
+	int		x = point_a.x;
+	int		y = point_a.y;
 
-		printf(":case 1:\n");
-		x = x0;
-		y = y0;
-		if (x1 >= x0 && y1 >= y0)
-		{
-			x = x0;
-			y = y0;
-			stop = x1;
-		}
-		else if (x0 >= x1 && y0 >= y1)
-		{
-			x = x1;
-			y = y1;
-			stop = x0;
-		}
-
-		deltaerror = fabs(deltay/deltax);
-		error += deltaerror;
-		while (x <= stop)
-		{
-			mlx_pixel_put(mlx, window, x+500, y+500, 0x00FF00FF);
-			//printf("point (%d,%d) rendered!",x,y);
-			error += deltaerror;
-			if (error >= 0)
-			{
-				y++;
-				error -= 1.0;
-			}
-			x++;			
-		}
-	}
-	else if (deltay/deltax >= 1)
+	if (deltax < 0)
+		xdir = -1;
+	if (deltay < 0)
+		ydir = -1;
+	error += deltaerr;
+	//printf("xdir:%d ydir:%d slope:%f deltaerr:%f\n", xdir, ydir, slope, deltaerr);
+	while (deltaerr < 1.0 && x != point_b.x + xdir)
 	{
-		printf(":case 2:\n");
-		x = x0;
-		y = y0;		
-		if (x1 >= x0 && y1 >= y0)
+		mlx_pixel_put(mlx, window, x+500, y+500, 0x00FF00FF);
+		printf("case1: rendered(%d,%d) error:%f\n", x, y, error);
+		error += deltaerr;
+		if (error >= 0.0)
 		{
-			x = x0;
-			y = y0;
-			stop = y1;
+			y += ydir;
+			//printf("minor shift\n");
+			error -= 1.0;
 		}
-		else if (x0 >= x1 && y0 >= y1)
-		{
-			x = x1;
-			y = y1;
-			stop = y0;
-		}
-		deltaerror = fabs(deltax/deltay);
-		error += deltaerror;
-		while (y <= stop)
-		{
-			mlx_pixel_put(mlx, window, x+500, y+500, 0x00FF00FF);
-			//printf("point (%d,%d) rendered!",x,y);
-			error += deltaerror;
-			if (error >= 0)
-			{
-				x++;
-				error -= 1.0;
-			}
-			y++;			
-		}
+		x += xdir;
+		//printf("major shift\n");
 	}
-	printf("*********************************************************************\n");
+	while (deltaerr >= 1.0 && y != point_b.y + ydir)
+	{
+		mlx_pixel_put(mlx, window, x+500, y+500, 0x00FF00FF);
+		printf("case2: rendered(%d,%d) error:%f\n", x, y, error);
+		error += deltaerr;
+		if (error >= 0.0)
+		{
+			x += xdir;
+			error -= 1.0;
+		}
+		y += ydir;
+	}
 }
 
 void drawline3d(void *mlx, void *window, t_3d_point *coord1, t_3d_point *coord2)
 {
-	int *point1;
-	int *point2;
+	t_point point1;
+	t_point point2;
 
 	point1 = projection(*coord1);
 	point2 = projection(*coord2);
-	drawline(mlx, window, point1[0], point1[1], point2[0], point2[1]);
-	free(point1);
-	free(point2);
+
+	drawline(mlx, window, point1, point2);
 }
 
 
@@ -315,13 +270,17 @@ int main()
 	//drawline(mlx, window, 35-17, 35-17, 5-17, 30-17);
 	//drawline(mlx, window, 5-17, 30-17, 0-17, 0-17);
 
-	//drawline(mlx, window, 50, 50, 50, 100);
-	//drawline(mlx, window, 50, 100, 100, 100);
-	//drawline(mlx, window, 100, 100, 100, 50);
-	//drawline(mlx, window, 100, 50, 50, 50);
-	//drawline(mlx, window, 10, 30, 12, 25);
-	//drawline(mlx, window, 12, 25, 25, 2);
-	//drawline(mlx, window, 25, 2, 0, 0);
+	/*drawline(mlx, window, point(50, 50), point(50, 100));
+	drawline(mlx, window, point(50, 100), point(100, 100));
+	drawline(mlx, window, point(100, 100), point(100, 50));
+	drawline(mlx, window, point(100, 50), point(50, 50));
+	drawline(mlx, window, point(10, 30), point(12, 25));
+	drawline(mlx, window, point(12, 25), point(25, 2));
+	drawline(mlx, window, point(25, 2), point(0, 0));*/
+
+	//drawline(mlx, window, point(1, 1), point(6, 3));
+
+
 	
 	int faces[] = {4, 4, 4, 4, 4, 4};
 	int vertex_ind[] = {	0,1,2,3,		//FRONT
