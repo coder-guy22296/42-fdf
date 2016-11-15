@@ -48,15 +48,21 @@ typedef struct	s_3d_object
 	int			*vertex_ind;
 	t_3d_point	*vertices;
 	t_3d_vector	pos_vector;
+	void (*transform)(t_3d_object));
 
 }				t_3d_object;
 
 typedef struct	s_3d_scene
 {
+	t_3d_vector *eye_relative_canvas;
 	t_3d_vector *viewport_vector;
 	int viewport_cnt;
-	int projection_method;
 	t_3d_point	origin_point;
+	t_3d_object *objects;
+	int object_cnt;
+
+	void (*projection_method)(t_3d_scene));
+	void (*render)(t_3d_scene));
 }				t_3d_scene;
 
 typedef struct	s_renderer
@@ -251,15 +257,18 @@ void render3d_object(void *mlx, void *window, t_3d_object obj, int mode)
 
 int main()
 {
-	void *mlx;
-	void *window;
+	t_renderer renderer;
+	
+	
+	//void *mlx;
+	//void *window;
 	//void *point1;
 	//void *point2;
 	t_3d_object obj;
 
 
-	mlx = mlx_init();
-	window = mlx_new_window(mlx, 1000, 1000, "line drawing");
+	renderer.mlx = mlx_init();
+	renderer.window = mlx_new_window(renderer.mlx, 1000, 1000, "line drawing");
 	//drawline(mlx, window, 0-17, 0-17, 5-17, 30-17);
 	//drawline(mlx, window, 5-17, 30-17, 35-17, 35-17);
 	//drawline(mlx, window, 35-17, 35-17, 30-17, 5-17);
