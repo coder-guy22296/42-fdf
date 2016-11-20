@@ -182,11 +182,14 @@ t_point perspective_projection(t_3d_point coord/*, t_3d_scene scene*/)
 
 	int viewerpos[] = {0, 0, 1};
 	
-	t_3d_vector camera = {0, 0, 0, 0.0, 0.0, 0.0};
+	t_3d_vector camera = {/*5*/0, /*-15*/0, 0, 0.0, 0.0, 0.0};
 	t_vec3f new_coord;
 	t_vec2f projection;
 	t_vec2f normalized_coords;
 	t_point rasterized_coords;
+
+
+	printf("World Coords		(%d,%d,%d)\n", coord.x, coord.y, coord.z);
 
 	new_coord.x = cos(camera.y_rot)*(sin(camera.z_rot)*(coord.y-camera.y_pos) + 
 	cos(camera.z_rot)*(coord.x-camera.x_pos)) - sin(camera.y_rot)*(coord.z-camera.z_pos);
@@ -196,18 +199,20 @@ t_point perspective_projection(t_3d_point coord/*, t_3d_scene scene*/)
 
 	new_coord.z = cos(camera.x_rot)*(cos(camera.y_rot)*(coord.z-camera.z_pos) + sin(camera.y_rot)*(sin(camera.z_rot)*(coord.y-camera.y_pos) + cos(camera.z_rot)*(coord.x-camera.x_pos))) - 
 	sin(camera.x_rot)*(cos(camera.z_rot)*(coord.y-camera.y_pos) - sin(camera.z_rot)*(coord.x-camera.x_pos));
-
+	printf("Camera Coords		(%f,%f,%f)\n", new_coord.x, new_coord.y, new_coord.z);
 
 	// projection
-	projection.x = (double)((((double)viewerpos[Z] / ((double)new_coord.z)) * (double)new_coord.x) - (double)viewerpos[X]);
-	projection.y = (double)((((double)viewerpos[Z] / ((double)new_coord.z)) * (double)new_coord.y) - (double)viewerpos[Y]);
-
+	projection.x = (double)((((double)viewerpos[Z] / fabs((double)new_coord.z)) * (double)new_coord.x) - (double)viewerpos[X]);
+	projection.y = (double)((((double)viewerpos[Z] / fabs((double)new_coord.z)) * (double)new_coord.y) - (double)viewerpos[Y]);
+	printf("Canvas Coords		(%f,%f)\n", projection.x, projection.y);
 	// normalization + screen spacing
 	normalized_coords.x = (projection.x + 1)/2;
 	normalized_coords.y = (1 - projection.y)/2;
+	printf("NDC			(%f,%f)\n", normalized_coords.x, normalized_coords.y);
 	// rasterization
 	rasterized_coords.x = (int)(normalized_coords.x * 1000);
 	rasterized_coords.y = (int)(normalized_coords.y * 1000);
+	printf("Rasterized Coords	(%d,%d)\n", rasterized_coords.x, rasterized_coords.y);
 	//printf("(%d,%d,%d) projected -> (%d,%d)\n", new_coord.x, new_coord.y, new_coord.z, point.x, point.y);
 	///exit(1);
 	return (rasterized_coords);
@@ -259,10 +264,14 @@ void drawline(void *mlx, void *window, t_point point_a, t_point point_b)
 		if (y == point_a.y)
 		{
 			deltaerr = fabs((double)deltax/(double)deltay);
+
+			//printf("new delta err:%f\n", deltaerr);
 			//printf("new delta err:%f\n", deltaerr);
 			error += deltaerr;
 		}
-		mlx_pixel_put(mlx, window, x, y, 0x00FF00FF);
+		int output = mlx_pixel_put(mlx, window, x, y, 0x00FF00FF/*+(y<<(y-x))+(x<<(x-y))*/);
+
+		printf("pixel render:%d\n", output);
 		//printf("case2: rendered(%d,%d) error:%f\n", x, y, error);
 		error += deltaerr;
 		if (error >= 0.0)
@@ -275,7 +284,9 @@ void drawline(void *mlx, void *window, t_point point_a, t_point point_b)
 	error += deltaerr;
 	while (fabs(slope) <= 1.0 && x != point_b.x)
 	{
-		mlx_pixel_put(mlx, window, x, y, 0x00FF00FF);
+		int output = mlx_pixel_put(mlx, window, x, y, 0x00FF00FF/*+(y<<(y-x))+(x<<(x-y))*/);
+
+		printf("pixel render:%d\n", output);
 		//printf("case1: rendered(%d,%d) error:%f\n", x, y, error);
 		error += deltaerr;
 		if (error >= 0.0)
@@ -296,6 +307,8 @@ void drawline3d(void *mlx, void *window, t_3d_point *coord1, t_3d_point *coord2)
 
 	point1 = perspective_projection(*coord1);
 	point2 = perspective_projection(*coord2);
+
+	//clipping 
 
 	drawline(mlx, window, point1, point2);
 }
@@ -355,9 +368,12 @@ void render_scene(t_renderer renderer, t_3d_scene scene)
 
 int render_loop(void *param)
 {
+	
+	printf("render start!\n");
 	t_renderer renderer = *((t_renderer *)param);
 	renderer.render(renderer, *renderer.scenes);
 	mlx_clear_window(renderer.mlx, renderer.window);
+	printf("render complete!\n");
 	return (0);
 }
 
@@ -370,7 +386,7 @@ int key_pressed(int keycode, void *param)
 		//(renderer->scenes)[0].objects[0].vertices[1].y -= 1;
 		printf("before: %d\n", (renderer->scenes)[0].objects[0].pos_vector.z_pos);
 		//if ((renderer->scenes)[0].objects[0].pos_vector.z_pos - 1 <= -6)
-			(renderer->scenes)[0].objects[0].pos_vector.z_pos += 1;
+			(renderer->scenes)[0].objects[0].pos_vector.z_pos -= 1;
 		printf("after: %d\n", (renderer->scenes)[0].objects[0].pos_vector.z_pos);
 	}
 	else if (keycode == 0)	//A
@@ -385,7 +401,7 @@ int key_pressed(int keycode, void *param)
 		//(renderer->scenes)[0].objects[0].vertices[1].y += 1;
 		printf("before: %d\n", (renderer->scenes)[0].objects[0].pos_vector.z_pos);
 		//if ((renderer->scenes)[0].objects[0].pos_vector.z_pos + 1 <= -6)
-			(renderer->scenes)[0].objects[0].pos_vector.z_pos -= 1;
+			(renderer->scenes)[0].objects[0].pos_vector.z_pos += 1;
 		printf("after: %d\n", (renderer->scenes)[0].objects[0].pos_vector.z_pos);
 	}
 	else if (keycode == 2)	//D
@@ -398,28 +414,30 @@ int key_pressed(int keycode, void *param)
 	else if (keycode == 126)	//UP
 	{
 		//(renderer->scenes)[0].objects[0].vertices[0].y -= 1;
-		printf("before: %d\n", (renderer->scenes)[0].objects[0].pos_vector.x_pos);
+		printf("before: %d\n", (renderer->scenes)[0].objects[0].pos_vector.y_pos);
 		(renderer->scenes)[0].objects[0].pos_vector.y_pos += 1;
-		printf("after: %d\n", (renderer->scenes)[0].objects[0].pos_vector.x_pos);
+		printf("after: %d\n", (renderer->scenes)[0].objects[0].pos_vector.y_pos);
 	}
 	else if (keycode == 123)	//LEFT
 	{
-		(renderer->scenes)[0].objects[0].vertices[0].x -= 1;
+		//(renderer->scenes)[0].objects[0].vertices[0].x -= 1;
 	}
 	else if (keycode == 125)	//DOWN
 	{
 	//	(renderer->scenes)[0].objects[0].vertices[0].y += 1;
-		printf("before: %d\n", (renderer->scenes)[0].objects[0].pos_vector.x_pos);
+		printf("before: %d\n", (renderer->scenes)[0].objects[0].pos_vector.y_pos);
 		(renderer->scenes)[0].objects[0].pos_vector.y_pos -= 1;
-		printf("after: %d\n", (renderer->scenes)[0].objects[0].pos_vector.x_pos);
+		printf("after: %d\n", (renderer->scenes)[0].objects[0].pos_vector.y_pos);
 	}
 	else if (keycode == 124)	//RIGHT
 	{
-		(renderer->scenes)[0].objects[0].vertices[0].x += 1;
+		//(renderer->scenes)[0].objects[0].vertices[0].x += 1;
 	}
 	if (param)
 	printf("key pressed: %d\n", keycode);
+	printf("render start!\n");
 	render_loop(renderer);
+	printf("render complete!\n");
 	return (0);
 }
 int main()
@@ -494,7 +512,9 @@ int main()
 /////////////////////////////////////////////////////////////
 
 
-	t_3d_vector pos = {0,0,-100,0.0,0.0,0.0};
+	t_3d_vector pos = {0, -0, -53, 0.0, 0.0, 0.0};
+	//t_3d_vector pos = {55, -55, -53, 0.0, 0.0, 0.0};
+	//t_3d_vector pos = {0, 0, -130, 0.0, 0.0, 0.0};
 	obj.pos_vector = pos;
 	scene.objects = &obj;
 	scene.object_cnt = 1;
