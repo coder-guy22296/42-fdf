@@ -190,7 +190,8 @@ t_point perspective_projection(t_3d_point coord/*, t_3d_scene scene*/)
 
 
 	printf("World Coords		(%d,%d,%d)\n", coord.x, coord.y, coord.z);
-
+	
+	//camera transform
 	new_coord.x = cos(camera.y_rot)*(sin(camera.z_rot)*(coord.y-camera.y_pos) + 
 	cos(camera.z_rot)*(coord.x-camera.x_pos)) - sin(camera.y_rot)*(coord.z-camera.z_pos);
 
@@ -269,9 +270,9 @@ void drawline(void *mlx, void *window, t_point point_a, t_point point_b)
 			//printf("new delta err:%f\n", deltaerr);
 			error += deltaerr;
 		}
-		int output = mlx_pixel_put(mlx, window, x, y, 0x00FF00FF/*+(y<<(y-x))+(x<<(x-y))*/);
+		/*int output = */mlx_pixel_put(mlx, window, x, y, 0x00FF00FF/*+(y<<(y-x))+(x<<(x-y))*/);
 
-		printf("pixel render:%d\n", output);
+		//printf("pixel render:%d\n", output);
 		//printf("case2: rendered(%d,%d) error:%f\n", x, y, error);
 		error += deltaerr;
 		if (error >= 0.0)
@@ -284,9 +285,9 @@ void drawline(void *mlx, void *window, t_point point_a, t_point point_b)
 	error += deltaerr;
 	while (fabs(slope) <= 1.0 && x != point_b.x)
 	{
-		int output = mlx_pixel_put(mlx, window, x, y, 0x00FF00FF/*+(y<<(y-x))+(x<<(x-y))*/);
+		/*int output = */mlx_pixel_put(mlx, window, x, y, 0x00FF00FF/*+(y<<(y-x))+(x<<(x-y))*/);
 
-		printf("pixel render:%d\n", output);
+		//printf("pixel render:%d\n", output);
 		//printf("case1: rendered(%d,%d) error:%f\n", x, y, error);
 		error += deltaerr;
 		if (error >= 0.0)
@@ -309,6 +310,14 @@ void drawline3d(void *mlx, void *window, t_3d_point *coord1, t_3d_point *coord2)
 	point2 = perspective_projection(*coord2);
 
 	//clipping 
+	/*if (point1.x > 1005)
+		point1.x = 0;
+	if (point1.y > 1005)
+		point1.y = 0;
+	if (point2.x > 1005)
+		point2.x = 0;
+	if (point2.y > 1005)
+		point2.y = 0;*/
 
 	drawline(mlx, window, point1, point2);
 }
@@ -444,40 +453,13 @@ int main()
 {
 	t_renderer renderer;
 	
-	
-	//void *mlx;
-	//void *window;
-	//void *point1;
-	//void *point2;
 	t_3d_object obj;
 	t_3d_object obj2;
 	t_3d_scene scene;
-
-
+	
 	renderer.mlx = mlx_init();
 	renderer.window = mlx_new_window(renderer.mlx, 1000, 1000, "line drawing");
-	//drawline(mlx, window, 0-17, 0-17, 5-17, 30-17);
-	//drawline(mlx, window, 5-17, 30-17, 35-17, 35-17);
-	//drawline(mlx, window, 35-17, 35-17, 30-17, 5-17);
-	//drawline(mlx, window, 30-17, 5-17, 0-17, 0-17);
 
-	//drawline(mlx, window, 0-17, 0-17, 30-17, 5-17);
-	//drawline(mlx, window, 30-17, 5-17, 35-17, 35-17);
-	//drawline(mlx, window, 35-17, 35-17, 5-17, 30-17);
-	//drawline(mlx, window, 5-17, 30-17, 0-17, 0-17);
-
-	/*drawline(mlx, window, point(50, 50), point(50, 100));
-	drawline(mlx, window, point(50, 100), point(100, 100));
-	drawline(mlx, window, point(100, 100), point(100, 50));
-	drawline(mlx, window, point(100, 50), point(50, 50));
-	drawline(mlx, window, point(10, 30), point(12, 25));
-	drawline(mlx, window, point(12, 25), point(25, 2));
-	drawline(mlx, window, point(25, 2), point(0, 0));*/
-
-	//drawline(mlx, window, point(1, 1), point(6, 3));
-
-
-	
 	int faces[] = {4, 4, 4, 4, 4, 4};
 	int vertex_ind[] = {	0,1,2,3,		//FRONT
 							4,5,6,7,		//BACK
@@ -536,62 +518,3 @@ int main()
 	mlx_loop(renderer.mlx);
 	return (0);
 }
-/*
-
-int main()
-{
-	void *mlx;
-	void *window;
-	int x;
-	int y;
-	*//*double matrix[4][4] = {	{0, 0, 0, 0},
-							{0, 0, 0, 0},
-							{0, 0, 0, 0}};*//*
-	int viewerpos[] = {0, 0, -6};
-	int objectpos[] = {500, 500, 5};
-	int objectpos2[] = {505, 505, 4};
-	int objectpos3[] = {510, 510, 6};
-	//int screenpos[] = {99, 99};
-
-
-
-	mlx = mlx_init();
-	window = mlx_new_window(mlx, 1000, 1000, "testing yoooooo");
-	x = -1 *((viewerpos[2]/objectpos[2])*objectpos[0]) - viewerpos[0];
-	y = -1 *((viewerpos[2]/objectpos[2])*objectpos[1]) - viewerpos[1];
-//only works if viewer is 1 unit from canvas
-	mlx_pixel_put(mlx, window, x, y, 0x00FF00FF);
-	printf("coords: (%d,%d)\n", x, y);
-
-
-
-	
-	x = -1 *((viewerpos[2]/objectpos2[2])*objectpos2[0]) - viewerpos[0];
-	y = -1 *((viewerpos[2]/objectpos2[2])*objectpos2[1]) - viewerpos[1];
-
-	mlx_pixel_put(mlx, window, x, y, 0x00FFFFFF);
-	printf("coords: (%d,%d)\n", x, y);
-
-	
-	x = -1 *((viewerpos[2]/objectpos3[2])*objectpos3[0]) - viewerpos[0];
-	y = -1 *((viewerpos[2]/objectpos3[2])*objectpos3[1]) - viewerpos[1];
-
-	mlx_pixel_put(mlx, window, x, y, 0x00FFFF00);
-	printf("coords: (%d,%d)\n", x, y);
-	*//*x = 50;
-	while (x < 500)
-	{
-		y = 50;
-		while (y < 500)
-		{
-			mlx_pixel_put(mlx, window, x, y, x+y+(x*x + y*y)+ 4916819);
-			y++;
-		}
-		x++;
-	}
-	mlx_pixel_put(mlx, window, 50, 50, 0x00FFFFFF);*//*
-	mlx_loop(mlx);
-	return (0);
-}
-
-*/
