@@ -80,7 +80,7 @@ typedef struct	s_3d_scene
 	t_3d_object *objects;
 	int object_cnt;
 
-	void (*projection_method)(struct s_3d_scene scene);
+	t_vec2f (*projection_method)(struct s_3d_scene scene);
 }				t_3d_scene;
 
 typedef struct	s_renderer
