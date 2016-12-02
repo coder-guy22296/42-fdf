@@ -13,20 +13,42 @@
 NAME = fdf
 SRC = fdf.c
 OFILES = fdf.o
-INCLUDES = minilibx/mlx.h
+
+LIBFT = libft/
+MLX = minilibx/
+LIBG = libg/
+
+LIBS = -L $(LIBFT) -lft
+LIBS += -L $(MLX) -lmlx -framework OpenGL -framework AppKit
+LIBS += -L $(LIBG) -lgraphics
+
+LIBI = -I $(LIBFT)
+LIBI += -I $(MLX)
+LIBI += -I $(LIBG)
+
 all: $(NAME)
-	
-$(NAME):
-	make -C minilibx/
-	gcc -Wall -Wextra -Werror -c $(SRC)
-	gcc -o $(NAME) $(OFILES) -I minilibx/ -L minilibx/ -lmlx -framework OpenGL -framework AppKit
+
+$(NAME): dependencies
+	gcc -Wall -Wextra -Werror -c $(SRC) $(LIBI)
+	gcc -o $(NAME) $(OFILES) $(LIBS)
 
 clean:
 	rm -rf $(OFILES)
-	make -C minilibx/ clean
+	make -C $(MLX) clean
+	make -C $(LIBG) clean
 
 fclean: clean
-	make -C minilibx/ clean
 	rm -f $(NAME)
+	make -C $(LIBG) fclean
 
 re: fclean all
+
+dependencies:
+	make -C $(MLX)
+	make -C $(LIBG)
+
+test:
+	rm -f $(NAME)
+	rm -rf $(OFILES)
+	gcc -Wall -Wextra -Werror -c $(SRC) $(LIBI)
+	gcc -o $(NAME) $(OFILES) $(LIBS)
