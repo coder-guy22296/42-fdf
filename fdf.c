@@ -17,6 +17,58 @@
 #include <stdlib.h>
 #include <math.h>
 
+int render_loop(void *param)
+{
+
+	printf("render start!\n");
+	t_renderer renderer = *((t_renderer *)param);
+	renderer.render(renderer, *renderer.scene);
+	mlx_clear_window(renderer.mlx, renderer.window);
+	printf("render complete!\n");
+	return (0);
+}
+
+int key_pressed(int keycode, void *param)
+{
+	t_renderer *renderer = (t_renderer *)param;
+	t_3d_object *obj = ((t_3d_object *)renderer->scene->objects->content);
+	if (keycode == 13)		//W
+	{
+		translate(obj, vec3f(0, 0, -1));
+	}
+	else if (keycode == 0)	//A
+	{
+		translate(obj, vec3f(-1, 0, 0));
+	}
+	else if (keycode == 1)	//S
+	{
+		translate(obj, vec3f(0, 0, 1));
+	}
+	else if (keycode == 2)	//D
+	{
+		translate(obj, vec3f(1, 0, 0));
+	}
+	else if (keycode == 126)	//UP
+	{
+		translate(obj, vec3f(0, 1, 0));
+	}
+	else if (keycode == 123)	//LEFT
+	{
+
+	}
+	else if (keycode == 125)	//DOWN
+	{
+		translate(obj, vec3f(0, -1, 0));
+	}
+	else if (keycode == 124)	//RIGHT
+	{
+
+	}
+	printf("key pressed: %d\n", keycode);
+	render_loop(renderer);
+	return (0);
+}
+
 int main()
 {
 	t_renderer *fdf_renderer = new_renderer(render_scene);
@@ -54,20 +106,14 @@ int main()
 	ft_memcpy(obj->vertex_ind, &vertex_ind[0], sizeof(int) * 24);
 	ft_memcpy(obj->vertices, &vertices[0], sizeof(t_vec3f) * 8);
 
-//	obj->faces_arr = &faces[0];
-//	obj->face_cnt = 6;
-//	obj->vertex_ind = &vertex_ind[0];
-//	obj->vertices = &vertices[0];
-
-	//t_3d_vector pos = {55, -55, -53, 0.0, 0.0, 0.0};
-	//t_3d_vector pos = {0, 0, -130, 0.0, 0.0, 0.0};
-	translate(obj, vec3f(0, 0, -250));
+	translate(obj, vec3f(0, 0, -150));
+	//rotate(obj, vec3f(0.0,0.0,0));
 
 	add_object(scene1, obj);
 	fdf_renderer->scene = scene1;
 
 	fdf_renderer->render(*fdf_renderer, *(fdf_renderer->scene));
-	//mlx_key_hook(fdf_renderer->window, key_pressed, fdf_renderer);
+	mlx_key_hook(fdf_renderer->window, key_pressed, fdf_renderer);
 	//mlx_loop_hook(renderer.mlx, render_loop, &renderer);
 	mlx_loop(fdf_renderer->mlx);
 	return (0);
