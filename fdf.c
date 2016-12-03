@@ -61,28 +61,28 @@ int key_pressed(int keycode, void *param)
 	else if (keycode == 0)	//A
 	{
 		//translate(obj, vec3f(-1, 0, 0));
-		rotate(obj, vec3f(0.0, 0.0, 0.1));
+		rotate_object(obj, vec3f(0.0, 0.0, 0.1));
 	}
 	else if (keycode == 2)	//D
 	{
 		//translate(obj, vec3f(1, 0, 0));
-		rotate(obj, vec3f(0.0, 0.0, -0.1));
+		rotate_object(obj, vec3f(0.0, 0.0, -0.1));
 	}
 	else if (keycode == 91)	//NUM_8
 	{
-		rotate(obj, vec3f(-0.1, 0.0, 0.0));
+		rotate_object(obj, vec3f(-0.1, 0.0, 0.0));
 	}
 	else if (keycode == 87)	//NUM_5
 	{
-		rotate(obj, vec3f(0.1, 0.0, 0.0));
+		rotate_object(obj, vec3f(0.1, 0.0, 0.0));
 	}
 	else if (keycode == 86)	//NUM_4
 	{
-		rotate(obj, vec3f(0.0, 0.1, 0.0));
+		rotate_object(obj, vec3f(0.0, 0.1, 0.0));
 	}
 	else if (keycode == 88)	//NUM_6
 	{
-		rotate(obj, vec3f(0.0, -0.1, 0.0));
+		rotate_object(obj, vec3f(0.0, -0.1, 0.0));
 	}
 
 	printf("key pressed: %d\n", keycode);
@@ -116,7 +116,6 @@ int main()
 								{-50,  50,   -50 },
 								{-50, -50,   -50 },
 								{ 50, -50,   -50 }	};
-
 	obj->faces_arr = (int *)ft_memalloc(sizeof(int) * 6);
 	obj->face_cnt = 6;
 	obj->vertex_ind = (int *)ft_memalloc(sizeof(int) * 24);
