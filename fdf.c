@@ -19,12 +19,14 @@
 
 int render_loop(void *param)
 {
-
-	printf("render start!\n");
 	t_renderer renderer = *((t_renderer *)param);
-	renderer.render(renderer, *renderer.scene);
-	mlx_clear_window(renderer.mlx, renderer.window);
-	printf("render complete!\n");
+	if(renderer.scene)
+	{
+		printf("render start!\n");
+		renderer.render(renderer, *renderer.scene);
+		mlx_clear_window(renderer.mlx, renderer.window);
+		printf("render complete!\n");
+	}
 	return (0);
 }
 
@@ -34,36 +36,55 @@ int key_pressed(int keycode, void *param)
 	t_3d_object *obj = ((t_3d_object *)renderer->scene->objects->content);
 	if (keycode == 13)		//W
 	{
-		translate(obj, vec3f(0, 0, -1));
-	}
-	else if (keycode == 0)	//A
-	{
-		translate(obj, vec3f(-1, 0, 0));
+		obj->pos_vector.position = translate_point(obj->pos_vector.position, vec3f(0, 0, -1));
 	}
 	else if (keycode == 1)	//S
 	{
-		translate(obj, vec3f(0, 0, 1));
-	}
-	else if (keycode == 2)	//D
-	{
-		translate(obj, vec3f(1, 0, 0));
+		obj->pos_vector.position = translate_point(obj->pos_vector.position, vec3f(0, 0, 1));
 	}
 	else if (keycode == 126)	//UP
 	{
-		translate(obj, vec3f(0, 1, 0));
-	}
-	else if (keycode == 123)	//LEFT
-	{
-
+		obj->pos_vector.position = translate_point(obj->pos_vector.position, vec3f(0, 1, 0));
 	}
 	else if (keycode == 125)	//DOWN
 	{
-		translate(obj, vec3f(0, -1, 0));
+		obj->pos_vector.position = translate_point(obj->pos_vector.position, vec3f(0, -1, 0));
+	}
+	else if (keycode == 123)	//LEFT
+	{
+		obj->pos_vector.position = translate_point(obj->pos_vector.position, vec3f(-1, 0, 0));
 	}
 	else if (keycode == 124)	//RIGHT
 	{
-
+		obj->pos_vector.position = translate_point(obj->pos_vector.position, vec3f(1, 0, 0));
 	}
+	else if (keycode == 0)	//A
+	{
+		//translate(obj, vec3f(-1, 0, 0));
+		rotate(obj, vec3f(0.0, 0.0, 0.1));
+	}
+	else if (keycode == 2)	//D
+	{
+		//translate(obj, vec3f(1, 0, 0));
+		rotate(obj, vec3f(0.0, 0.0, -0.1));
+	}
+	else if (keycode == 91)	//NUM_8
+	{
+		rotate(obj, vec3f(-0.1, 0.0, 0.0));
+	}
+	else if (keycode == 87)	//NUM_5
+	{
+		rotate(obj, vec3f(0.1, 0.0, 0.0));
+	}
+	else if (keycode == 86)	//NUM_4
+	{
+		rotate(obj, vec3f(0.0, 0.1, 0.0));
+	}
+	else if (keycode == 88)	//NUM_6
+	{
+		rotate(obj, vec3f(0.0, -0.1, 0.0));
+	}
+
 	printf("key pressed: %d\n", keycode);
 	render_loop(renderer);
 	return (0);
@@ -106,7 +127,8 @@ int main()
 	ft_memcpy(obj->vertex_ind, &vertex_ind[0], sizeof(int) * 24);
 	ft_memcpy(obj->vertices, &vertices[0], sizeof(t_vec3f) * 8);
 
-	translate(obj, vec3f(0, 0, -150));
+	//translate(obj, vec3f(0, 0, -150));
+	obj->pos_vector.position = vec3f(0, 0, -150);
 	//rotate(obj, vec3f(0.0,0.0,0));
 
 	add_object(scene1, obj);
@@ -114,7 +136,8 @@ int main()
 
 	fdf_renderer->render(*fdf_renderer, *(fdf_renderer->scene));
 	mlx_key_hook(fdf_renderer->window, key_pressed, fdf_renderer);
-	//mlx_loop_hook(renderer.mlx, render_loop, &renderer);
+	mlx_do_key_autorepeaton(fdf_renderer->mlx);
+	//mlx_loop_hook(fdf_renderer->mlx, render_loop, fdf_renderer);
 	mlx_loop(fdf_renderer->mlx);
 	return (0);
 }
