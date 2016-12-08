@@ -40,18 +40,18 @@ typedef struct	s_vec2i
 	int y;
 }				t_vec2i;
 
-typedef struct	s_vec2f
+typedef struct	s_vec2fc
 {
 	float x;
 	float y;
-}				t_vec2f;
+}				t_vec2fc;
 
-typedef struct	s_vec3f
+typedef struct	s_vec3fc
 {
 	float x;
 	float y;
 	float z;
-}				t_vec3f;
+}				t_vec3fc;
 
 typedef struct	s_3d_point
 {
@@ -80,7 +80,7 @@ typedef struct	s_3d_scene
 	t_3d_object *objects;
 	int object_cnt;
 
-	t_vec2f (*projection_method)(struct s_3d_scene scene);
+	t_vec2fc (*projection_method)(struct s_3d_scene scene);
 }				t_3d_scene;
 
 typedef struct	s_renderer
@@ -183,9 +183,9 @@ t_point perspective_projection(t_3d_point coord/*, t_3d_scene scene*/)
 	int viewerpos[] = {0, 0, 1};
 	
 	t_3d_vector camera = {/*5*/0, /*-15*/0, 0, 0.0, 0.0, 0.0};
-	t_vec3f new_coord;
-	t_vec2f projection;
-	t_vec2f normalized_coords;
+	t_vec3fc new_coord;
+	t_vec2fc projection;
+	t_vec2fc normalized_coords;
 	t_point rasterized_coords;
 
 

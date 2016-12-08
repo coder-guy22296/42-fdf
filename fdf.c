@@ -53,17 +53,17 @@ void object_rotation_controls(int keycode, t_renderer *renderer)
 
 	obj = ((t_3d_object *)renderer->scene->objects->content);
 	if (keycode == 89)	//NUM_7
-		rotate_object(obj, vec3f(0.0, 0.0, 0.1));
+		rotate_object(obj, vec3f(0.0, 0.0, 3.14/64.0));
 	else if (keycode == 92)	//NUM_9
-		rotate_object(obj, vec3f(0.0, 0.0, -0.1));
+		rotate_object(obj, vec3f(0.0, 0.0, -3.14/64.0));
 	else if (keycode == 91)	//NUM_8
-		rotate_object(obj, vec3f(-0.1, 0.0, 0.0));
+		rotate_object(obj, vec3f(-3.14/64.0, 0.0, 0.0));
 	else if (keycode == 87)	//NUM_5
-		rotate_object(obj, vec3f(0.1, 0.0, 0.0));
+		rotate_object(obj, vec3f(3.14/64.0, 0.0, 0.0));
 	else if (keycode == 86)	//NUM_4
-		rotate_object(obj, vec3f(0.0, 0.1, 0.0));
+		rotate_object(obj, vec3f(0.0, 3.14/64.0, 0.0));
 	else if (keycode == 88)	//NUM_6
-		rotate_object(obj, vec3f(0.0, -0.1, 0.0));
+		rotate_object(obj, vec3f(0.0, -3.14/64.0, 0.0));
 }
 
 void camera_translation_controls(int keycode, t_renderer *renderer)
@@ -253,6 +253,7 @@ void center_obj_originxy(t_3d_object *object)
 	int i;
 
 	max_x = -99;
+	max_y = -99;
 	i = object->vertex_cnt - 1;
 	while (i >= 0)
 	{
