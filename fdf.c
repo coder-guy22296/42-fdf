@@ -13,7 +13,7 @@
 #include "mlx.h"
 #include "libgraphics.h"
 #include "libft.h"
-#include "stdio.h"
+#include "stdio.h"//REMOVE
 #include <stdlib.h>
 #include <fcntl.h>
 
@@ -32,8 +32,8 @@ int render_loop(void *param)
 
 void object_translation_controls(int keycode, t_renderer *renderer)
 {
-	t_3d_object *obj;
-	t_vec3f		*pos;
+	t_3d_object	*obj;
+	t_vec3fc		*pos;
 
 	obj = ((t_3d_object *)renderer->scene->objects->content);
 	pos = &(obj->pos_vector.position);
@@ -68,7 +68,7 @@ void object_rotation_controls(int keycode, t_renderer *renderer)
 
 void camera_translation_controls(int keycode, t_renderer *renderer)
 {
-	t_vec3f		*pos;
+	t_vec3fc		*pos;
 	
 	pos = &(renderer->scene->camera->loc.position);
 	if (keycode == 13)		//W
@@ -130,7 +130,7 @@ int mouse_release_hook(int button, int x, int y, void *param)
 int mouse_motion_hook(int x, int y, void *param)
 {
 	t_renderer	*renderer;
-	t_vec3f		*rotation;
+	t_vec3fc		*rotation;
 
 	renderer = (t_renderer *)param;
 	rotation = &(renderer->scene->camera->loc.rotation);
@@ -221,7 +221,7 @@ static void array2d_to_object(int **arr2d, t_3d_object *obj, int rows, int cols)
 	obj->vertex_cnt = rows * cols;
 	obj->faces_arr = (int *)ft_memalloc(sizeof(int) * obj->face_cnt);
 	obj->vertex_ind = (int *)ft_memalloc(sizeof(int) * obj->face_cnt * 4);
-	obj->vertices = (t_vec3f *)ft_memalloc(sizeof(t_vec3f) * obj->vertex_cnt);
+	obj->vertices = (t_vec3fc *)ft_memalloc(sizeof(t_vec3fc) * obj->vertex_cnt);
 	cur_face_vert = 0;
 	y = 0;
 	cur_vert = 0;
@@ -230,8 +230,8 @@ static void array2d_to_object(int **arr2d, t_3d_object *obj, int rows, int cols)
 		x = 0;
 		while (x < cols)
 		{
-			obj->vertices[cur_vert] = vec3f(x * 10, y * 10, arr2d[y][x] * 2);
-			if (x < cols - 2 && y < rows - 2)
+			obj->vertices[cur_vert] = vec3fc(x * 10, y * 10, arr2d[y][x], (arr2d[y][x] == 0) ? 0x00FF0000 : 0x00FFFFFF);
+			if (x < cols - 1 && y < rows - 1)
 			{
 				obj->faces_arr[cur_face_vert/4] = 4;
 				obj->vertex_ind[cur_face_vert++] = cur_vert + 1;
@@ -246,13 +246,45 @@ static void array2d_to_object(int **arr2d, t_3d_object *obj, int rows, int cols)
 	}
 }
 
+void center_obj_originxy(t_3d_object *object)
+{
+	float max_x;
+	float max_y;
+	int i;
+
+	max_x = -99;
+	i = object->vertex_cnt - 1;
+	while (i >= 0)
+	{
+		if (object->vertices[i].x > max_x)
+			max_x = object->vertices[i].x;
+		if (object->vertices[i].y > max_y)
+			max_y = object->vertices[i].y;
+		i--;
+	}
+	ft_putstr("max x: ");
+	ft_putnbr(max_x);
+	ft_putstr("\n");
+
+	ft_putstr("max y: ");
+	ft_putnbr(max_y);
+	ft_putstr("\n");
+	i = object->vertex_cnt - 1;
+	while (i >= 0)
+	{
+		object->vertices[i].x -= (max_x / 2.0);
+		object->vertices[i].y -= (max_y / 2.0);
+		i--;
+	}
+}
+
 t_3d_object *load_wireframe(char *filename)
 {
 	t_3d_object	*obj;
 	t_list		*lines;
 	int			**array2d;
-	int 		row_cnt;
-	int 		col_cnt;
+	int			row_cnt;
+	int			col_cnt;
 	int			file;
 
 	//allocate space for object struct
@@ -272,73 +304,85 @@ t_3d_object *load_wireframe(char *filename)
 	//convert linked list of arrays of strings -> 2d array of ints
 	convert_list2array(lines, array2d, row_cnt, col_cnt);
 
+	//final loading to an object
 	array2d_to_object(array2d, obj, row_cnt, col_cnt);
+	center_obj_originxy(obj);
+	return (obj);
+}
 
+t_3d_object	*testCube()
+{
+	t_3d_object *obj = (t_3d_object *)ft_memalloc(sizeof(t_3d_object));
+	int faces[] = {4, 4, 4, 4, 4, 4};
+	int vertex_ind[] = {	0,1,2,3,		//FRONT
+							4,5,6,7,		//BACK
+							4,5,1,0,		//TOP
+							7,6,2,3,		//BOTTOM
+							1,5,6,2,		//LEFT
+							0,4,7,3			//RIGHT
+						 };
+	t_vec3fc		 vertices[] = {	{ 50,  50,    50, 0x00FF0000 },
+                                    {-50,  50,    50, 0x00FF0000 },
+                                    {-50, -50,    50, 0x00FF0000 },
+                                    { 50, -50,    50, 0x00FF0000 },
+                                    { 50,  50,   -50, 0x00FFFFFF },
+                                    {-50,  50,   -50, 0x00FFFFFF },
+                                    {-50, -50,   -50, 0x00FFFFFF },
+                                    { 50, -50,   -50, 0x00FFFFFF }	};
+	obj->faces_arr = (int *)ft_memalloc(sizeof(int) * 6);
+	obj->face_cnt = 6;
+	obj->vertex_ind = (int *)ft_memalloc(sizeof(int) * 24);
+	obj->vertices = (t_vec3fc *)ft_memalloc(sizeof(t_vec3fc) * 8);
+	obj->vertex_cnt = 8;
+	ft_memcpy(obj->faces_arr, &faces[0], sizeof(int) * 6);
+	ft_memcpy(obj->vertex_ind, &vertex_ind[0], sizeof(int) * 24);
+	ft_memcpy(obj->vertices, &vertices[0], sizeof(t_vec3fc) * 8);
+	obj->pos_vector.position = vec3f(0, 0, -150);
 	return (obj);
 }
 
 int main(int argc, char **argv)
 {
-	t_renderer *fdf_renderer = new_renderer(render_scene);
+	t_renderer	*fdf_renderer;
+	t_scene		*scene1;
+	t_3d_object	*obj;
 
+
+
+	fdf_renderer = new_renderer(render_scene);
+	scene1 = new_scene(perspective_projection);
+
+	fdf_renderer->window = mlx_new_window(fdf_renderer->mlx, 1000, 1000, "line drawing");
 	fdf_renderer->last_click.x = -99;
 	fdf_renderer->last_click.y = -99;
 
-	if (argc == 2)
-		ft_putstr("found a file!!\n");
-	t_3d_object *obj = load_wireframe(argv[1]);
-
-
-	//t_3d_object *obj = (t_3d_object *)ft_memalloc(sizeof(t_3d_object));
-	t_scene *scene1 = new_scene(perspective_projection);
 	scene1->camera = new_camera(vec6f(vec3f(0, 0, 150), vec3f(0.0, 0.0, 0.0)), vec3f(0, 0, 4));
 	scene1->origin_point = vec3f(0,0,0);
-	fdf_renderer->window = mlx_new_window(fdf_renderer->mlx, 1000, 1000, "line drawing");
 
-//	int faces[] = {4, 4, 4, 4, 4, 4};
-//	int vertex_ind[] = {	0,1,2,3,		//FRONT
-//							4,5,6,7,		//BACK
-//							4,5,1,0,		//TOP
-//							7,6,2,3,		//BOTTOM
-//							1,5,6,2,		//LEFT
-//							0,4,7,3			//RIGHT
-//						 };
-//	t_vec3f		 vertices[] = {	{ 50,  50,    50 },
-//								{-50,  50,    50 },
-//								{-50, -50,    50 },
-//								{ 50, -50,    50 },
-//								{ 50,  50,   -50 },
-//								{-50,  50,   -50 },
-//								{-50, -50,   -50 },
-//								{ 50, -50,   -50 }	};
-	//obj->faces_arr = (int *)ft_memalloc(sizeof(int) * 6);
-	//obj->face_cnt = 6;
-	//obj->vertex_ind = (int *)ft_memalloc(sizeof(int) * 24);
-	//obj->vertices = (t_vec3f *)ft_memalloc(sizeof(t_vec3f) * 8);
-	//obj->vertex_cnt = 8;
+	if (argc == 2)
+		obj = load_wireframe(argv[1]);
+	else
+	{
+		obj = testCube();
+		int spacing = 105;
 
-	//ft_memcpy(obj->faces_arr, &faces[0], sizeof(int) * 6);
-	//ft_memcpy(obj->vertex_ind, &vertex_ind[0], sizeof(int) * 24);
-	//ft_memcpy(obj->vertices, &vertices[0], sizeof(t_vec3f) * 8);
+		obj->pos_vector.position = vec3f(0, spacing, -150);
+		add_object(scene1, obj);
 
-	//translate(obj, vec3f(0, 0, -150));
+		obj->pos_vector.position = vec3f(-spacing, spacing, -150);
+		add_object(scene1, obj);
+
+		obj->pos_vector.position = vec3f(spacing, 0, -150);
+		add_object(scene1, obj);
+	}
+
 	obj->pos_vector.position = vec3f(0, 0, -150);
-	//rotate(obj, vec3f(0.0,0.0,0));
-
 	add_object(scene1, obj);
 
-	/*int spacing = 105;
-
-	obj->pos_vector.position = vec3f(0, spacing, -150);
-	add_object(scene1, obj);
-
-	obj->pos_vector.position = vec3f(-spacing, spacing, -150);
-	add_object(scene1, obj);
-	obj->pos_vector.position = vec3f(spacing, 0, -150);
-	add_object(scene1, obj);*/
 	fdf_renderer->scene = scene1;
-
 	fdf_renderer->render(*fdf_renderer, *(fdf_renderer->scene));
+
+	// hooks
 	mlx_hook(fdf_renderer->window, 2, 0, key_pressed, fdf_renderer);/*key_*/
 	//mlx_do_key_autorepeatoff(fdf_renderer->mlx);
 	mlx_hook(fdf_renderer->window, 4, 0, mouse_press_hook, fdf_renderer);
