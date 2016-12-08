@@ -36,15 +36,18 @@ clean:
 	rm -rf $(OFILES)
 	make -C $(MLX) clean
 	make -C $(LIBG) clean
+	make -C $(LIBFT) clean
 
 fclean: clean
 	rm -f $(NAME)
 	make -C $(LIBG) fclean
+	make -C $(LIBFT) fclean
 
 re: fclean all
 
 dependencies:
 	make -C $(MLX)
+	make -C $(LIBFT)
 	make -C $(LIBG)
 
 test:
