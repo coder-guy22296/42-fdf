@@ -381,7 +381,13 @@ int main(int argc, char **argv)
 	add_object(scene1, obj);
 
 	fdf_renderer->scene = scene1;
-	fdf_renderer->render(*fdf_renderer, *(fdf_renderer->scene));
+	//fdf_renderer->render(*fdf_renderer, *(fdf_renderer->scene));
+
+	//t_vec3fc a = vec3fc(1, 1, 0, 0x00FF0000);
+	//t_vec3fc b = vec3fc(5, 14, 0, 0x00FFFFFF);
+
+	//drawline(*fdf_renderer, a, b);
+	//drawline(*fdf_renderer, translate_point(b, vec3fc(5, 0, 0, 0)), translate_point(a, vec3fc(5, 0, 0, 0)));
 
 	// hooks
 	mlx_hook(fdf_renderer->window, 2, 0, key_pressed, fdf_renderer);/*key_*/
