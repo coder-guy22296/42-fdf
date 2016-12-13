@@ -52,17 +52,17 @@ void object_rotation_controls(int keycode, t_renderer *renderer)
 	t_3d_object *obj;
 
 	obj = ((t_3d_object *)renderer->scene->objects->content);
-	if (keycode == 89)	//NUM_7
+	if (keycode == 89)			//NUM_7
 		rotate_object(obj, vec3f(0.0, 0.0, 3.14/64.0));
-	else if (keycode == 92)	//NUM_9
+	else if (keycode == 92)		//NUM_9
 		rotate_object(obj, vec3f(0.0, 0.0, -3.14/64.0));
-	else if (keycode == 91)	//NUM_8
+	else if (keycode == 91)		//NUM_8
 		rotate_object(obj, vec3f(-3.14/64.0, 0.0, 0.0));
-	else if (keycode == 87)	//NUM_5
+	else if (keycode == 87)		//NUM_5
 		rotate_object(obj, vec3f(3.14/64.0, 0.0, 0.0));
-	else if (keycode == 86)	//NUM_4
+	else if (keycode == 86)		//NUM_4
 		rotate_object(obj, vec3f(0.0, 3.14/64.0, 0.0));
-	else if (keycode == 88)	//NUM_6
+	else if (keycode == 88)		//NUM_6
 		rotate_object(obj, vec3f(0.0, -3.14/64.0, 0.0));
 }
 
@@ -71,17 +71,17 @@ void camera_translation_controls(int keycode, t_renderer *renderer)
 	t_vec3fc		*pos;
 	
 	pos = &(renderer->scene->camera->loc.position);
-	if (keycode == 13)		//W
+	if (keycode == 13)			//W
 		*pos = translate_point(*pos, vec3f(0, 0, -5));
-	else if (keycode == 1)	//S
+	else if (keycode == 1)		//S
 		*pos = translate_point(*pos, vec3f(0, 0, 5));
 	else if (keycode == 0)		//A
 		*pos = translate_point(*pos, vec3f(-5, 0, 0));
-	else if (keycode == 2)	//D
+	else if (keycode == 2)		//D
 		*pos = translate_point(*pos, vec3f(5, 0, 0));
 	else if (keycode == 15)		//R
 		*pos = translate_point(*pos, vec3f(0, 5, 0));
-	else if (keycode == 3)	//F
+	else if (keycode == 3)		//F
 		*pos = translate_point(*pos, vec3f(0, -5, 0));
 }
 
@@ -92,7 +92,18 @@ int key_pressed(int keycode, void *param)
 	object_translation_controls(keycode, renderer);
 	object_rotation_controls(keycode, renderer);
 	camera_translation_controls(keycode, renderer);
-	if (keycode == 53)	//ESC
+	if (keycode == 82)		//NUM_0
+	{
+		if (renderer->scene->projection_method == perspective_projection)
+			renderer->scene->projection_method = orthographic_projection;
+		else
+			renderer->scene->projection_method = perspective_projection;
+	}
+	if (keycode == 85)		//NUM_3
+		renderer->scene->scale = translate_point(renderer->scene->scale, vec3f(0.2,0.2,0.2));
+	if (keycode == 65)		//NUM_DOT
+		renderer->scene->scale = translate_point(renderer->scene->scale, vec3f(-0.2,-0.2,-0.2));
+	if (keycode == 53)		//ESC
 		exit (1);
 
 	printf("key pressed: %d\n", keycode);
@@ -139,7 +150,11 @@ int mouse_motion_hook(int x, int y, void *param)
 	y -= 500;
 	if (renderer->last_click.x != -99 && renderer->last_click.y != -99)
 	{
-		*rotation = translate_point(*rotation,
+		if (renderer->scene->projection_method == orthographic_projection)
+			*rotation = translate_point(*rotation,
+					vec3f( 0.0,((x - renderer->last_click.x)/1000.0), 0.0));
+		else
+			*rotation = translate_point(*rotation,
 					vec3f( 0.0,-((x - renderer->last_click.x)/1000.0), 0.0));
 		*rotation = translate_point(*rotation,
 					vec3f(-((y - renderer->last_click.y)/1000.0), 0.0, 0.0));
@@ -354,11 +369,14 @@ int main(int argc, char **argv)
 	scene1 = new_scene(perspective_projection);
 
 	fdf_renderer->window = mlx_new_window(fdf_renderer->mlx, 1000, 1000, "line drawing");
+	fdf_renderer->win_x = 1000;
+	fdf_renderer->win_y = 1000;
 	fdf_renderer->last_click.x = -99;
 	fdf_renderer->last_click.y = -99;
 
 	scene1->camera = new_camera(vec6f(vec3f(0, 0, 150), vec3f(0.0, 0.0, 0.0)), vec3f(0, 0, 4));
 	scene1->origin_point = vec3f(0,0,0);
+	scene1->scale = vec3f(1, 1, 1);
 
 	if (argc == 2)
 		obj = load_wireframe(argv[1]);
