@@ -357,14 +357,27 @@ t_3d_object	*testCube()
 	return (obj);
 }
 
+void setup_hooks(t_renderer *renderer)
+{
+	mlx_hook(renderer->window, 2, 0, key_pressed, renderer);
+	mlx_hook(renderer->window, 4, 0, mouse_press_hook, renderer);
+	mlx_hook(renderer->window, 5, 0, mouse_release_hook, renderer);
+	mlx_hook(renderer->window, 6, 0, mouse_motion_hook, renderer);
+	mlx_loop_hook(renderer->mlx, render_loop, renderer);
+	mlx_loop(renderer->mlx);
+}
+
 int main(int argc, char **argv)
 {
 	t_renderer	*fdf_renderer;
 	t_scene		*scene1;
 	t_3d_object	*obj;
 
-
-
+	if (argc != 2)
+	{
+		ft_putstr("Usage: ./fdf <filename>\n");
+		return (0);
+	}
 	fdf_renderer = new_renderer(render_scene);
 	scene1 = new_scene(perspective_projection);
 
@@ -378,42 +391,10 @@ int main(int argc, char **argv)
 	scene1->origin_point = vec3f(0,0,0);
 	scene1->scale = vec3f(1, 1, 1);
 
-	if (argc == 2)
-		obj = load_wireframe(argv[1]);
-	else
-	{
-		obj = testCube();
-		int spacing = 105;
-
-		obj->pos_vector.position = vec3f(0, spacing, -150);
-		add_object(scene1, obj);
-
-		obj->pos_vector.position = vec3f(-spacing, spacing, -150);
-		add_object(scene1, obj);
-
-		obj->pos_vector.position = vec3f(spacing, 0, -150);
-		add_object(scene1, obj);
-	}
-
+	obj = load_wireframe(argv[1]);
 	obj->pos_vector.position = vec3f(0, 0, -150);
 	add_object(scene1, obj);
-
 	fdf_renderer->scene = scene1;
-	//fdf_renderer->render(*fdf_renderer, *(fdf_renderer->scene));
-
-//	t_vec3fc a = vec3fc(1, 1, 0, 0x00FF0000);
-//	t_vec3fc b = vec3fc(11, 5, 0, 0x00FFFFFF);
-//
-//	drawline(*fdf_renderer, a, b);
-//	drawline(*fdf_renderer, translate_point(b, vec3fc(5, 0, 0, 0)), translate_point(a, vec3fc(5, 0, 0, 0)));
-
-	// hooks
-	mlx_hook(fdf_renderer->window, 2, 0, key_pressed, fdf_renderer);/*key_*/
-	//mlx_do_key_autorepeatoff(fdf_renderer->mlx);
-	mlx_hook(fdf_renderer->window, 4, 0, mouse_press_hook, fdf_renderer);
-	mlx_hook(fdf_renderer->window, 5, 0, mouse_release_hook, fdf_renderer);
-	mlx_hook(fdf_renderer->window, 6, 0, mouse_motion_hook, fdf_renderer);
-	mlx_loop_hook(fdf_renderer->mlx, render_loop, fdf_renderer);
-	mlx_loop(fdf_renderer->mlx);
+	setup_hooks(fdf_renderer);
 	return (0);
 }
