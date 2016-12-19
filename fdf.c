@@ -107,7 +107,7 @@ int key_pressed(int keycode, void *param)
 		renderer->scene->scale = translate_point(renderer->scene->scale, vec3f(-0.2,-0.2,-0.2));
 	if (keycode == ESC)		//ESC
 		exit (1);
-	render_loop(param);
+	//render_loop(param);
 	printf("key pressed: %d\n", keycode);
 	return (0);
 }
@@ -123,7 +123,7 @@ int mouse_press_hook(int button, int x, int y, void *param)
 		ft_putchar('\0');
 	renderer->last_click.x = x;
 	renderer->last_click.y = y;
-	render_loop(param);
+	//render_loop(param);
 	return (0);
 }
 
@@ -138,7 +138,7 @@ int mouse_release_hook(int button, int x, int y, void *param)
 		ft_putchar('\0');
 	renderer->last_click.x = -99;
 	renderer->last_click.y = -99;
-	render_loop(param);
+	//render_loop(param);
 	return (0);
 }
 
@@ -164,7 +164,7 @@ int mouse_motion_hook(int x, int y, void *param)
 					vec3f(-((y - renderer->last_click.y)/1000.0), 0.0, 0.0));
 		renderer->last_click.x = x;
 		renderer->last_click.y = y;
-		render_loop(param);
+		//render_loop(param);
 	}
 	return (0);
 }
@@ -432,7 +432,7 @@ void setup_hooks(t_renderer *renderer)
 	mlx_hook(renderer->window, 4, 0, mouse_press_hook, renderer);
 	mlx_hook(renderer->window, 5, 0, mouse_release_hook, renderer);
 	mlx_hook(renderer->window, 6, 0, mouse_motion_hook, renderer);
-	//mlx_loop_hook(renderer->mlx, render_loop, renderer);
+	mlx_loop_hook(renderer->mlx, render_loop, renderer);
 	mlx_loop(renderer->mlx);
 }
 
