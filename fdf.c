@@ -272,10 +272,14 @@ static void array2d_to_object(int **arr2d, t_3d_object *obj, int rows, int cols)
 		x = 0;
 		while (x < cols)
 		{
-			color = (arr2d[y][x] > 5 ) ? 0x00FF0000 : 0x00FFFFFF;
+			//color = (arr2d[y][x] > 5 ) ? 0x00FF0000 : 0x00FFFFFF;
 			if (arr2d[y][x] == -2147483648)
 				color = 0x4F000000;
-			obj->vertices[cur_vert] = vec3fc(x, y, arr2d[y][x], color);
+			if ((arr2d[y][x] > obj->z_max || (x == 0 && y == 0)) && arr2d[y][x] != -2147483648)
+				obj->z_max = arr2d[y][x];
+			if ((arr2d[y][x] < obj->z_min || (x == 0 && y == 0)) && arr2d[y][x] != -2147483648)
+				obj->z_min = arr2d[y][x];
+			obj->vertices[cur_vert] = vec3fc(x, y, arr2d[y][x] * 1.0f, color);
 			if (x < cols - 1 && y < rows - 1)
 			{
 				obj->faces_arr[cur_face_vert/4] = 4;
@@ -289,6 +293,7 @@ static void array2d_to_object(int **arr2d, t_3d_object *obj, int rows, int cols)
 		}
 		y++;
 	}
+	printf("z_min: %f  z_max: %f\n",obj->z_min, obj->z_max);
 }
 
 void center_obj_originxy(t_3d_object *object)
@@ -320,6 +325,27 @@ void center_obj_originxy(t_3d_object *object)
 	{
 		object->vertices[i].x -= (max_x / 2.0);
 		object->vertices[i].y -= (max_y / 2.0);
+		i--;
+	}
+}
+
+void apply_z_gradient(t_3d_object *obj, int color_low, int color_high)
+{
+	int color;
+	float magnitude;
+	float percent;
+	int i;
+
+	magnitude = fabsf(obj->z_max - obj->z_min);
+
+
+	i = obj->vertex_cnt - 1;
+	while (i >= 0)
+	{
+		percent = (obj->vertices[i].z + fabsf(obj->z_min)) / magnitude;
+		printf("zVal: %f percent: %f\n",obj->vertices[i].z, percent);
+		color = blend(color_low, color_high, percent);
+		obj->vertices[i].color = color;
 		i--;
 	}
 }
@@ -364,6 +390,8 @@ t_3d_object *load_wireframe(char *filename)
 	ft_putstr("center origin:\n");
 	center_obj_originxy(obj);
 	ft_putstr("centering origin complete!\n");
+
+	apply_z_gradient(obj, 0x00FFFFFF, 0x00FF0000);
 	return (obj);
 }
 
