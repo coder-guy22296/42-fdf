@@ -206,33 +206,29 @@ void				**new_2darray(int rows, int columns, size_t element_size)
 static void			convert_list2array(t_list *lines, int **arr2d,
 									int rows, int columns)
 {
-	t_list	*lst;
 	t_list	*tmp;
 	int		valid_col;
 	int		row;
 	int		col;
 
-	lst = lines;
 	row = 0;
-	while (lst != NULL && row < rows)
+	while (lines != NULL && row < rows)
 	{
-		tmp = lst->next;
+		tmp = lines->next;
 		col = 0;
-		valid_col = (((char **)lst->content)[col] == '\0') ? 0 : 1;
+		valid_col = (((char **)lines->content)[col] == 0) ? 0 : 1;
 		while (col < columns)
 		{
 			if (valid_col)
 			{
-				valid_col = (((char **)lst->content)[col + 1] == '\0') ? 0 : 1;
-				arr2d[row][col] = ft_atoi(((char **)lst->content)[col]);
+				valid_col = (((char **)lines->content)[col + 1] == 0) ? 0 : 1;
+				arr2d[row][col] = ft_atoi(((char **)lines->content)[col]);
 			}
 			else
-			{
 				arr2d[row][col] = -2147483648;
-			}
 			col++;
 		}
-		lst = tmp;
+		lines = tmp;
 		row++;
 	}
 }
