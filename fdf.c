@@ -251,6 +251,16 @@ t_3d_object			*new_3dobject(int faces, int verticies, int verts_per_face)
 	return (obj);
 }
 
+static void			find_min_max_z(t_3d_object *obj, int x, int y, int z)
+{
+	if ((z > obj->z_max || (x == 0 && y == 0))
+		&& z != -2147483648)
+		obj->z_max = z;
+	if ((z < obj->z_min || (x == 0 && y == 0))
+		&& z != -2147483648)
+		obj->z_min = z;
+}
+
 static void			array2d_to_object(int **arr2d, t_3d_object *obj, int rows,
 											int cols)
 {
@@ -275,12 +285,7 @@ static void			array2d_to_object(int **arr2d, t_3d_object *obj, int rows,
 		{
 			if (arr2d[y][x] == -2147483648)
 				color = 0x4F000000;
-			if ((arr2d[y][x] > obj->z_max || (x == 0 && y == 0))
-				&& arr2d[y][x] != -2147483648)
-				obj->z_max = arr2d[y][x];
-			if ((arr2d[y][x] < obj->z_min || (x == 0 && y == 0))
-				&& arr2d[y][x] != -2147483648)
-				obj->z_min = arr2d[y][x];
+			find_min_max_z(obj, x, y, arr2d[y][x]);
 			obj->vertices[cur_vert] = vec3fc(x, y, arr2d[y][x] * 1.0f, color);
 			if (x < cols - 1 && y < rows - 1)
 			{
