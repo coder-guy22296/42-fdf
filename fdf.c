@@ -261,36 +261,37 @@ static void			set_min_max_z(t_3d_object *obj, int x, int y, int z)
 		obj->z_min = z;
 }
 
+static void			set_object_vert_indices(t_3d_object *obj, int cur_vert,
+												int cols, int *cur_face_vert)
+{
+	obj->faces_arr[*cur_face_vert / 4] = 4;
+	obj->vertex_ind[(*cur_face_vert)++] = cur_vert + 1;
+	obj->vertex_ind[(*cur_face_vert)++] = cur_vert;
+	obj->vertex_ind[(*cur_face_vert)++] = cur_vert + cols;
+	obj->vertex_ind[(*cur_face_vert)++] = cur_vert + cols + 1;
+}
+
 static t_3d_object	*array2d_to_object(int **arr2d, int rows, int cols)
 {
 	t_3d_object	*obj;
 	int			cur_face_vert;
 	int			cur_vert;
-	int			color;
 	int			y;
 	int			x;
 
 	obj = new_3dobject((rows - 1) * (cols - 1), rows * cols, 4);
 	cur_face_vert = 0;
-	y = 0;
 	cur_vert = 0;
+	y = 0;
 	while (y < rows)
 	{
 		x = 0;
 		while (x < cols)
 		{
-			if (arr2d[y][x] == -2147483648)
-				color = 0x4F000000;
 			set_min_max_z(obj, x, y, arr2d[y][x]);
-			obj->vertices[cur_vert] = vec3fc(x, y, arr2d[y][x] * 1.0f, color);
+			obj->vertices[cur_vert] = vec3fc(x, y, arr2d[y][x], 0x0);
 			if (x < cols - 1 && y < rows - 1)
-			{
-				obj->faces_arr[cur_face_vert / 4] = 4;
-				obj->vertex_ind[cur_face_vert++] = cur_vert + 1;
-				obj->vertex_ind[cur_face_vert++] = cur_vert;
-				obj->vertex_ind[cur_face_vert++] = cur_vert + cols;
-				obj->vertex_ind[cur_face_vert++] = cur_vert + cols + 1;
-			}
+				set_object_vert_indices(obj, cur_vert, cols, &cur_face_vert);
 			cur_vert++;
 			x++;
 		}
