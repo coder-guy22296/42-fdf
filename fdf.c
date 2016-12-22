@@ -251,7 +251,7 @@ t_3d_object			*new_3dobject(int faces, int verticies, int verts_per_face)
 	return (obj);
 }
 
-static void			find_min_max_z(t_3d_object *obj, int x, int y, int z)
+static void			set_min_max_z(t_3d_object *obj, int x, int y, int z)
 {
 	if ((z > obj->z_max || (x == 0 && y == 0))
 		&& z != -2147483648)
@@ -261,20 +261,16 @@ static void			find_min_max_z(t_3d_object *obj, int x, int y, int z)
 		obj->z_min = z;
 }
 
-static void			array2d_to_object(int **arr2d, t_3d_object *obj, int rows,
-											int cols)
+static t_3d_object	*array2d_to_object(int **arr2d, int rows, int cols)
 {
-	int	cur_face_vert;
-	int	cur_vert;
-	int	color;
-	int	y;
-	int	x;
+	t_3d_object	*obj;
+	int			cur_face_vert;
+	int			cur_vert;
+	int			color;
+	int			y;
+	int			x;
 
-	obj->face_cnt = (rows - 1) * (cols - 1);
-	obj->vertex_cnt = rows * cols;
-	obj->faces_arr = (int *)ft_memalloc(sizeof(int) * obj->face_cnt);
-	obj->vertex_ind = (int *)ft_memalloc(sizeof(int) * obj->face_cnt * 4);
-	obj->vertices = (t_vec3fc *)ft_memalloc(sizeof(t_vec3fc) * obj->vertex_cnt);
+	obj = new_3dobject((rows - 1) * (cols - 1), rows * cols, 4);
 	cur_face_vert = 0;
 	y = 0;
 	cur_vert = 0;
@@ -285,7 +281,7 @@ static void			array2d_to_object(int **arr2d, t_3d_object *obj, int rows,
 		{
 			if (arr2d[y][x] == -2147483648)
 				color = 0x4F000000;
-			find_min_max_z(obj, x, y, arr2d[y][x]);
+			set_min_max_z(obj, x, y, arr2d[y][x]);
 			obj->vertices[cur_vert] = vec3fc(x, y, arr2d[y][x] * 1.0f, color);
 			if (x < cols - 1 && y < rows - 1)
 			{
@@ -300,6 +296,7 @@ static void			array2d_to_object(int **arr2d, t_3d_object *obj, int rows,
 		}
 		y++;
 	}
+	return (obj);
 }
 
 void				center_obj_originxy(t_3d_object *object)
@@ -362,7 +359,7 @@ t_3d_object			*load_wireframe(char *filename)
 	row_col.y = load_into_list(file, &lines, &row_col.x);
 	array2d = (int **)new_2darray(row_col.y, row_col.x, sizeof(int));
 	convert_list2array(lines, array2d, row_col.y, row_col.x);
-	array2d_to_object(array2d, obj, row_col.y, row_col.x);
+	obj = array2d_to_object(array2d, row_col.y, row_col.x);
 	center_obj_originxy(obj);
 	apply_z_gradient(obj, 0x00FFFFFF, 0x00FF0000);
 	obj->pos_vector.position = vec3f(0, 0, -2 * obj->z_max);
