@@ -39,14 +39,13 @@ t_3d_object	*load_wireframe(char *filename)
 	t_vec2i		row_col;
 	int			file;
 
-	if (!(obj = (t_3d_object *)ft_memalloc(sizeof(t_3d_object))))
-		return (NULL);
 	if ((file = open(filename, O_RDONLY)) == -1)
 		return (NULL);
 	row_col.y = load_into_list(file, &lines, &row_col.x);
 	array2d = (int **)new_2darray(row_col.y, row_col.x, sizeof(int));
 	convert_list2array(lines, array2d, row_col.y, row_col.x);
-	obj = array2d_to_object(array2d, row_col.y, row_col.x);
+	if (!(obj = array2d_to_object(array2d, row_col.y, row_col.x)))
+		return (NULL);
 	center_obj_originxy(obj);
 	apply_z_gradient(obj, 0x00FFFFFF, 0x00FF0000);
 	obj->pos_vector.position = vec3f(0, 0, -2 * obj->z_max);
