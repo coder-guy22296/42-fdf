@@ -12,7 +12,6 @@
 
 #include "mlx.h"
 #include "libgraphics.h"
-#include "stdio.h"//REMOVE
 #include <stdlib.h>
 #include <fcntl.h>
 
@@ -106,7 +105,6 @@ int			key_pressed(int keycode, void *param)
 												vec3f(-0.2, -0.2, -0.2));
 	if (keycode == ESC)
 		exit(1);
-	printf("key pressed: %d\n", keycode);
 	return (0);
 }
 
@@ -228,7 +226,6 @@ static void	convert_list2array(t_list *lines, int **arr2d,
 			}
 			else
 			{
-				ft_putstr("added ghost pixel\n");
 				arr2d[row][col] = -2147483648;
 			}
 			col++;
@@ -281,7 +278,6 @@ static void	array2d_to_object(int **arr2d, t_3d_object *obj, int rows, int cols)
 		}
 		y++;
 	}
-	printf("z_min: %f  z_max: %f\n", obj->z_min, obj->z_max);
 }
 
 void		center_obj_originxy(t_3d_object *object)
@@ -301,12 +297,6 @@ void		center_obj_originxy(t_3d_object *object)
 			max_y = object->vertices[i].y;
 		i--;
 	}
-	ft_putstr("max x: ");
-	ft_putnbr(max_x);
-	ft_putstr("\n");
-	ft_putstr("max y: ");
-	ft_putnbr(max_y);
-	ft_putstr("\n");
 	i = object->vertex_cnt - 1;
 	while (i >= 0)
 	{
@@ -328,9 +318,7 @@ void		apply_z_gradient(t_3d_object *obj, int color_low, int color_high)
 	while (i >= 0)
 	{
 		percent = (obj->vertices[i].z + fabsf(obj->z_min)) / magnitude;
-		printf("zVal: %f percent: %f\n", obj->vertices[i].z, percent);
 		color = blend(color_low, color_high, percent);
-		printf("color: %d\n", color);
 		obj->vertices[i].color = color;
 		i--;
 	}
@@ -349,57 +337,14 @@ t_3d_object	*load_wireframe(char *filename)
 		return (NULL);
 	if ((file = open(filename, O_RDONLY)) == -1)
 		return (NULL);
-	ft_putstr("creating list:\n");
 	row_cnt = load_into_list(file, &lines, &col_cnt);
-	ft_putstr("list created!\n");
-	ft_putstr("alloc 2d array:\n");
 	array2d = (int **)new_2darray(row_cnt, col_cnt, sizeof(int));
-	ft_putstr("alloc complete!\n");
-	ft_putstr("list to array cpy(str -> int)\n");
 	convert_list2array(lines, array2d, row_cnt, col_cnt);
-	ft_putstr("copy complete!\n");
-	ft_putstr("construct t_3d_object\n");
 	array2d_to_object(array2d, obj, row_cnt, col_cnt);
-	ft_putstr("construction complete!\n");
-	ft_putstr("center origin:\n");
 	center_obj_originxy(obj);
-	ft_putstr("centering origin complete!\n");
 	apply_z_gradient(obj, 0x00FFFFFF, 0x00FF0000);
 	return (obj);
 }
-
-/*
-t_3d_object	*testCube()
-{
-	t_3d_object *obj = (t_3d_object *)ft_memalloc(sizeof(t_3d_object));
-	int faces[] = {4, 4, 4, 4, 4, 4};
-	int vertex_ind[] = {	0,1,2,3,
-							4,5,6,7,
-							4,5,1,0,
-							7,6,2,3,
-							1,5,6,2,
-							0,4,7,3
-						 };
-	t_vec3fc		 vertices[] = {	{ 50,  50,    50, 0x00FF0000 },
-									{-50,  50,    50, 0x00FF0000 },
-									{-50, -50,    50, 0x00FF0000 },
-									{ 50, -50,    50, 0x00FF0000 },
-									{ 50,  50,   -50, 0x00FFFFFF },
-									{-50,  50,   -50, 0x00FFFFFF },
-									{-50, -50,   -50, 0x00FFFFFF },
-									{ 50, -50,   -50, 0x00FFFFFF }	};
-	obj->faces_arr = (int *)ft_memalloc(sizeof(int) * 6);
-	obj->face_cnt = 6;
-	obj->vertex_ind = (int *)ft_memalloc(sizeof(int) * 24);
-	obj->vertices = (t_vec3fc *)ft_memalloc(sizeof(t_vec3fc) * 8);
-	obj->vertex_cnt = 8;
-	ft_memcpy(obj->faces_arr, &faces[0], sizeof(int) * 6);
-	ft_memcpy(obj->vertex_ind, &vertex_ind[0], sizeof(int) * 24);
-	ft_memcpy(obj->vertices, &vertices[0], sizeof(t_vec3fc) * 8);
-	obj->pos_vector.position = vec3f(0, 0, -150);
-	return (obj);
-}
-*/
 
 void		setup_hooks(t_renderer *renderer)
 {
