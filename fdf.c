@@ -12,6 +12,7 @@
 
 #include "mlx.h"
 #include "libgraphics.h"
+#include <stdio.h>			//REMOVE
 #include <stdlib.h>
 #include <fcntl.h>
 
@@ -23,6 +24,7 @@ int			render_loop(void *param)
 	if (renderer->scene)
 	{
 		renderer->render(renderer, *renderer->scene);
+		printf("rendered!");
 	}
 	return (0);
 }
@@ -343,6 +345,7 @@ t_3d_object	*load_wireframe(char *filename)
 	array2d_to_object(array2d, obj, row_cnt, col_cnt);
 	center_obj_originxy(obj);
 	apply_z_gradient(obj, 0x00FFFFFF, 0x00FF0000);
+	obj->pos_vector.position = vec3f(0, 0, -150);
 	return (obj);
 }
 
@@ -368,21 +371,11 @@ int			main(int argc, char **argv)
 		return (0);
 	}
 	fdf_renderer = new_renderer(render_scene);
-	scene1 = new_scene(perspective_projection);
-	fdf_renderer->window = mlx_new_window(fdf_renderer->mlx, 1000,
-											1000, "line drawing");
-	fdf_renderer->win_x = 1000;
-	fdf_renderer->win_y = 1000;
-	fdf_renderer->last_click.x = -99;
-	fdf_renderer->last_click.y = -99;
-	scene1->cur_frame.width = fdf_renderer->win_x;
-	scene1->cur_frame.height = fdf_renderer->win_y;
+	add_window(fdf_renderer, 1000, 1000, "cyildiri's fdf");
+	scene1 = new_scene(perspective_projection, 1000, 1000);
 	scene1->camera = new_camera(vec6f(vec3f(0, 0, 150),
 									vec3f(0.0, 0.0, 0.0)), vec3f(0, 0, 4));
-	scene1->origin_point = vec3f(0, 0, 0);
-	scene1->scale = vec3f(1, 1, 1);
 	obj = load_wireframe(argv[1]);
-	obj->pos_vector.position = vec3f(0, 0, -150);
 	add_object(scene1, obj);
 	fdf_renderer->scene = scene1;
 	setup_hooks(fdf_renderer);
