@@ -214,11 +214,12 @@ static void			convert_list2array(t_list *lines, int **arr2d,
 
 	lst = lines;
 	row = 0;
-	while (((col = -1) + 1) || (lst != NULL && row < rows))
+	while (lst != NULL && row < rows)
 	{
 		tmp = lst->next;
+		col = 0;
 		valid_col = (((char **)lst->content)[col] == '\0') ? 0 : 1;
-		while (++col < columns)
+		while (col < columns)
 		{
 			if (valid_col)
 			{
@@ -226,7 +227,10 @@ static void			convert_list2array(t_list *lines, int **arr2d,
 				arr2d[row][col] = ft_atoi(((char **)lst->content)[col]);
 			}
 			else
+			{
 				arr2d[row][col] = -2147483648;
+			}
+			col++;
 		}
 		lst = tmp;
 		row++;
@@ -251,64 +255,50 @@ t_3d_object			*new_3dobject(int faces, int verticies, int verts_per_face)
 	return (obj);
 }
 
-static void			set_3dcoords(int **arr2d, t_3d_object *obj, t_vec2fc *pnt)
-{
-	t_vec2i	pnt2;
-	int		*color;
-
-	pnt2.x = (int)(pnt->x);
-	pnt2.y = (int)(pnt->y);
-	color = &(pnt->color);
-	if (arr2d[pnt2.y][pnt2.x] == -2147483648)
-		*color = 0x4F000000;
-	if ((arr2d[pnt2.y][pnt2.x] > obj->z_max || (pnt2.x == 0 && pnt2.y == 0))
-		&& arr2d[pnt2.y][pnt2.x] != -2147483648)
-		obj->z_max = arr2d[pnt2.y][pnt2.x];
-	if ((arr2d[pnt2.y][pnt2.x] < obj->z_min || (pnt2.x == 0 && pnt2.y == 0))
-		&& arr2d[pnt2.y][pnt2.x] != -2147483648)
-		obj->z_min = arr2d[pnt2.y][pnt2.x];
-}
-
-static void			set_object_vert_indices(t_3d_object *obj,
-												int *cur_vert, int *cols)
+static void			array2d_to_object(int **arr2d, t_3d_object *obj, int rows,
+											int cols)
 {
 	int	cur_face_vert;
+	int	cur_vert;
+	int	color;
+	int	y;
+	int	x;
 
+	obj->face_cnt = (rows - 1) * (cols - 1);
+	obj->vertex_cnt = rows * cols;
+	obj->faces_arr = (int *)ft_memalloc(sizeof(int) * obj->face_cnt);
+	obj->vertex_ind = (int *)ft_memalloc(sizeof(int) * obj->face_cnt * 4);
+	obj->vertices = (t_vec3fc *)ft_memalloc(sizeof(t_vec3fc) * obj->vertex_cnt);
 	cur_face_vert = 0;
-	obj->faces_arr[cur_face_vert / 4] = 4;
-	obj->vertex_ind[cur_face_vert++] = *cur_vert + 1;
-	obj->vertex_ind[cur_face_vert++] = *cur_vert;
-	obj->vertex_ind[cur_face_vert++] = *cur_vert + *cols;
-	obj->vertex_ind[cur_face_vert++] = *cur_vert + *cols + 1;
-	(*cur_vert)++;
-}
-
-static t_3d_object	*array2d_to_object(int **arr2d, int rows, int cols)
-{
-	t_3d_object	*obj;
-	int			cur_vert;
-	t_vec2fc	pnt;
-
-	obj = new_3dobject((rows - 1) * (cols - 1), rows * cols, 4);
-	pnt.y = 0;
+	y = 0;
 	cur_vert = 0;
-	while (pnt.y < rows)
+	while (y < rows)
 	{
-		pnt.x = 0;
-		while (pnt.x < cols)
+		x = 0;
+		while (x < cols)
 		{
-			set_3dcoords(arr2d, obj, &pnt);
-			obj->vertices[cur_vert] = vec3fc(pnt.x, pnt.y,
-												arr2d[(int)pnt.y][(int)pnt.x],
-												pnt.color);
-			if (pnt.x++ < cols - 1 && pnt.y < rows - 1)
+			if (arr2d[y][x] == -2147483648)
+				color = 0x4F000000;
+			if ((arr2d[y][x] > obj->z_max || (x == 0 && y == 0))
+				&& arr2d[y][x] != -2147483648)
+				obj->z_max = arr2d[y][x];
+			if ((arr2d[y][x] < obj->z_min || (x == 0 && y == 0))
+				&& arr2d[y][x] != -2147483648)
+				obj->z_min = arr2d[y][x];
+			obj->vertices[cur_vert] = vec3fc(x, y, arr2d[y][x] * 1.0f, color);
+			if (x < cols - 1 && y < rows - 1)
 			{
-				set_object_vert_indices(obj, &cur_vert, &cols);
+				obj->faces_arr[cur_face_vert / 4] = 4;
+				obj->vertex_ind[cur_face_vert++] = cur_vert + 1;
+				obj->vertex_ind[cur_face_vert++] = cur_vert;
+				obj->vertex_ind[cur_face_vert++] = cur_vert + cols;
+				obj->vertex_ind[cur_face_vert++] = cur_vert + cols + 1;
 			}
+			cur_vert++;
+			x++;
 		}
-		pnt.y++;
+		y++;
 	}
-	return (obj);
 }
 
 void				center_obj_originxy(t_3d_object *object)
@@ -371,8 +361,7 @@ t_3d_object			*load_wireframe(char *filename)
 	row_col.y = load_into_list(file, &lines, &row_col.x);
 	array2d = (int **)new_2darray(row_col.y, row_col.x, sizeof(int));
 	convert_list2array(lines, array2d, row_col.y, row_col.x);
-	if (!(obj = array2d_to_object(array2d, row_col.y, row_col.x)))
-		return (NULL);
+	array2d_to_object(array2d, obj, row_col.y, row_col.x);
 	center_obj_originxy(obj);
 	apply_z_gradient(obj, 0x00FFFFFF, 0x00FF0000);
 	obj->pos_vector.position = vec3f(0, 0, -2 * obj->z_max);
