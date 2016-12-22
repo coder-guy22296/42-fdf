@@ -11,8 +11,13 @@
 #******************************************************************************#
 
 NAME = fdf
-SRC = fdf.c
-OFILES = fdf.o
+SRC =   fdf.c\
+		wireframe.c\
+		key_hooks.c\
+		mouse_hooks.c\
+		fdf_map_loading.c\
+		object_operations.c
+OFILES = $(SRC:.c=.o)
 
 LIBFT = libft/
 MLX = minilibx/
