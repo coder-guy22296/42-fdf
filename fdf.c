@@ -12,7 +12,6 @@
 
 #include "mlx.h"
 #include "libgraphics.h"
-#include <stdio.h>			//REMOVE
 #include <stdlib.h>
 #include <fcntl.h>
 
@@ -24,7 +23,6 @@ int			render_loop(void *param)
 	if (renderer->scene)
 	{
 		renderer->render(renderer, *renderer->scene);
-		printf("rendered!");
 	}
 	return (0);
 }
@@ -345,7 +343,7 @@ t_3d_object	*load_wireframe(char *filename)
 	array2d_to_object(array2d, obj, row_cnt, col_cnt);
 	center_obj_originxy(obj);
 	apply_z_gradient(obj, 0x00FFFFFF, 0x00FF0000);
-	obj->pos_vector.position = vec3f(0, 0, -150);
+	obj->pos_vector.position = vec3f(0, 0, -2 * obj->z_max);
 	return (obj);
 }
 
