@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
-int			render_loop(void *param)
+int					render_loop(void *param)
 {
 	t_renderer	*renderer;
 
@@ -27,7 +27,8 @@ int			render_loop(void *param)
 	return (0);
 }
 
-void		object_translation_controls(int keycode, t_renderer *renderer)
+void				object_translation_controls(int keycode,
+												t_renderer *renderer)
 {
 	t_3d_object	*obj;
 	t_vec3fc	*pos;
@@ -44,7 +45,7 @@ void		object_translation_controls(int keycode, t_renderer *renderer)
 		*pos = translate_point(*pos, vec3f(1, 0, 0));
 }
 
-void		object_rotation_controls(int keycode, t_renderer *renderer)
+void				object_rotation_controls(int keycode, t_renderer *renderer)
 {
 	t_3d_object *obj;
 
@@ -63,7 +64,8 @@ void		object_rotation_controls(int keycode, t_renderer *renderer)
 		rotate_object(obj, vec3f(0.0, -3.14 / 64.0, 0.0));
 }
 
-void		camera_translation_controls(int keycode, t_renderer *renderer)
+void				camera_translation_controls(int keycode,
+												t_renderer *renderer)
 {
 	t_vec3fc	*pos;
 
@@ -82,7 +84,7 @@ void		camera_translation_controls(int keycode, t_renderer *renderer)
 		*pos = translate_point(*pos, vec3f(0, -5, 0));
 }
 
-int			key_pressed(int keycode, void *param)
+int					key_pressed(int keycode, void *param)
 {
 	t_renderer	*renderer;
 
@@ -108,7 +110,7 @@ int			key_pressed(int keycode, void *param)
 	return (0);
 }
 
-int			mouse_press_hook(int button, int x, int y, void *param)
+int					mouse_press_hook(int button, int x, int y, void *param)
 {
 	t_renderer	*renderer;
 
@@ -122,7 +124,7 @@ int			mouse_press_hook(int button, int x, int y, void *param)
 	return (0);
 }
 
-int			mouse_release_hook(int button, int x, int y, void *param)
+int					mouse_release_hook(int button, int x, int y, void *param)
 {
 	t_renderer	*renderer;
 
@@ -136,7 +138,7 @@ int			mouse_release_hook(int button, int x, int y, void *param)
 	return (0);
 }
 
-int			mouse_motion_hook(int x, int y, void *param)
+int					mouse_motion_hook(int x, int y, void *param)
 {
 	t_renderer	*renderer;
 	t_vec3fc	*rotation;
@@ -161,7 +163,7 @@ int			mouse_motion_hook(int x, int y, void *param)
 	return (0);
 }
 
-static int	load_into_list(int fd, t_list **lines, int *max_column_cnt)
+static int			load_into_list(int fd, t_list **lines, int *max_column_cnt)
 {
 	char		*line;
 	int			line_cnt;
@@ -185,7 +187,7 @@ static int	load_into_list(int fd, t_list **lines, int *max_column_cnt)
 	return (line_cnt);
 }
 
-void		**new_2darray(int rows, int columns, size_t element_size)
+void				**new_2darray(int rows, int columns, size_t element_size)
 {
 	void	**array_2d;
 	int		row;
@@ -201,7 +203,7 @@ void		**new_2darray(int rows, int columns, size_t element_size)
 	return (array_2d);
 }
 
-static void	convert_list2array(t_list *lines, int **arr2d,
+static void			convert_list2array(t_list *lines, int **arr2d,
 									int rows, int columns)
 {
 	t_list	*lst;
@@ -212,12 +214,11 @@ static void	convert_list2array(t_list *lines, int **arr2d,
 
 	lst = lines;
 	row = 0;
-	while (lst != NULL && row < rows)
+	while (((col = -1) + 1) || (lst != NULL && row < rows))
 	{
 		tmp = lst->next;
-		col = 0;
 		valid_col = (((char **)lst->content)[col] == '\0') ? 0 : 1;
-		while (col < columns)
+		while (++col < columns)
 		{
 			if (valid_col)
 			{
@@ -225,62 +226,92 @@ static void	convert_list2array(t_list *lines, int **arr2d,
 				arr2d[row][col] = ft_atoi(((char **)lst->content)[col]);
 			}
 			else
-			{
 				arr2d[row][col] = -2147483648;
-			}
-			col++;
 		}
 		lst = tmp;
 		row++;
 	}
 }
 
-static void	array2d_to_object(int **arr2d, t_3d_object *obj, int rows, int cols)
+t_3d_object			*new_3dobject(int faces, int verticies, int verts_per_face)
 {
-	int	cur_face_vert;
-	int	cur_vert;
-	int	color;
-	int	y;
-	int	x;
+	t_3d_object *obj;
 
-	obj->face_cnt = (rows - 1) * (cols - 1);
-	obj->vertex_cnt = rows * cols;
-	obj->faces_arr = (int *)ft_memalloc(sizeof(int) * obj->face_cnt);
-	obj->vertex_ind = (int *)ft_memalloc(sizeof(int) * obj->face_cnt * 4);
-	obj->vertices = (t_vec3fc *)ft_memalloc(sizeof(t_vec3fc) * obj->vertex_cnt);
-	cur_face_vert = 0;
-	y = 0;
-	cur_vert = 0;
-	while (y < rows)
-	{
-		x = 0;
-		while (x < cols)
-		{
-			if (arr2d[y][x] == -2147483648)
-				color = 0x4F000000;
-			if ((arr2d[y][x] > obj->z_max || (x == 0 && y == 0))
-											&& arr2d[y][x] != -2147483648)
-				obj->z_max = arr2d[y][x];
-			if ((arr2d[y][x] < obj->z_min || (x == 0 && y == 0))
-											&& arr2d[y][x] != -2147483648)
-				obj->z_min = arr2d[y][x];
-			obj->vertices[cur_vert] = vec3fc(x, y, arr2d[y][x] * 1.0f, color);
-			if (x < cols - 1 && y < rows - 1)
-			{
-				obj->faces_arr[cur_face_vert / 4] = 4;
-				obj->vertex_ind[cur_face_vert++] = cur_vert + 1;
-				obj->vertex_ind[cur_face_vert++] = cur_vert;
-				obj->vertex_ind[cur_face_vert++] = cur_vert + cols;
-				obj->vertex_ind[cur_face_vert++] = cur_vert + cols + 1;
-			}
-			cur_vert++;
-			x++;
-		}
-		y++;
-	}
+	if (!(obj = (t_3d_object *)ft_memalloc(sizeof(t_3d_object))))
+		return (NULL);
+	obj->face_cnt = faces;
+	obj->vertex_cnt = verticies;
+	if (!(obj->faces_arr = (int *)ft_memalloc(sizeof(int) * obj->face_cnt))
+		|| !(obj->vertex_ind = (int *)ft_memalloc(sizeof(int)
+													* obj->face_cnt
+													* verts_per_face))
+		|| !(obj->vertices = (t_vec3fc *)ft_memalloc(sizeof(t_vec3fc)
+														* obj->vertex_cnt)))
+		return (NULL);
+	return (obj);
 }
 
-void		center_obj_originxy(t_3d_object *object)
+static void			set_3dcoords(int **arr2d, t_3d_object *obj, t_vec2fc *pnt)
+{
+	t_vec2i	pnt2;
+	int		*color;
+
+	pnt2.x = (int)(pnt->x);
+	pnt2.y = (int)(pnt->y);
+	color = &(pnt->color);
+	if (arr2d[pnt2.y][pnt2.x] == -2147483648)
+		*color = 0x4F000000;
+	if ((arr2d[pnt2.y][pnt2.x] > obj->z_max || (pnt2.x == 0 && pnt2.y == 0))
+		&& arr2d[pnt2.y][pnt2.x] != -2147483648)
+		obj->z_max = arr2d[pnt2.y][pnt2.x];
+	if ((arr2d[pnt2.y][pnt2.x] < obj->z_min || (pnt2.x == 0 && pnt2.y == 0))
+		&& arr2d[pnt2.y][pnt2.x] != -2147483648)
+		obj->z_min = arr2d[pnt2.y][pnt2.x];
+}
+
+static void			set_object_vert_indices(t_3d_object *obj,
+												int *cur_vert, int *cols)
+{
+	int	cur_face_vert;
+
+	cur_face_vert = 0;
+	obj->faces_arr[cur_face_vert / 4] = 4;
+	obj->vertex_ind[cur_face_vert++] = *cur_vert + 1;
+	obj->vertex_ind[cur_face_vert++] = *cur_vert;
+	obj->vertex_ind[cur_face_vert++] = *cur_vert + *cols;
+	obj->vertex_ind[cur_face_vert++] = *cur_vert + *cols + 1;
+	(*cur_vert)++;
+}
+
+static t_3d_object	*array2d_to_object(int **arr2d, int rows, int cols)
+{
+	t_3d_object	*obj;
+	int			cur_vert;
+	t_vec2fc	pnt;
+
+	obj = new_3dobject((rows - 1) * (cols - 1), rows * cols, 4);
+	pnt.y = 0;
+	cur_vert = 0;
+	while (pnt.y < rows)
+	{
+		pnt.x = 0;
+		while (pnt.x < cols)
+		{
+			set_3dcoords(arr2d, obj, &pnt);
+			obj->vertices[cur_vert] = vec3fc(pnt.x, pnt.y,
+												arr2d[(int)pnt.y][(int)pnt.x],
+												pnt.color);
+			if (pnt.x++ < cols - 1 && pnt.y < rows - 1)
+			{
+				set_object_vert_indices(obj, &cur_vert, &cols);
+			}
+		}
+		pnt.y++;
+	}
+	return (obj);
+}
+
+void				center_obj_originxy(t_3d_object *object)
 {
 	float	max_x;
 	float	max_y;
@@ -306,7 +337,8 @@ void		center_obj_originxy(t_3d_object *object)
 	}
 }
 
-void		apply_z_gradient(t_3d_object *obj, int color_low, int color_high)
+void				apply_z_gradient(t_3d_object *obj, int color_low,
+										int color_high)
 {
 	int		color;
 	float	magnitude;
@@ -324,30 +356,30 @@ void		apply_z_gradient(t_3d_object *obj, int color_low, int color_high)
 	}
 }
 
-t_3d_object	*load_wireframe(char *filename)
+t_3d_object			*load_wireframe(char *filename)
 {
 	t_3d_object	*obj;
 	t_list		*lines;
 	int			**array2d;
-	int			row_cnt;
-	int			col_cnt;
+	t_vec2i		row_col;
 	int			file;
 
 	if (!(obj = (t_3d_object *)ft_memalloc(sizeof(t_3d_object))))
 		return (NULL);
 	if ((file = open(filename, O_RDONLY)) == -1)
 		return (NULL);
-	row_cnt = load_into_list(file, &lines, &col_cnt);
-	array2d = (int **)new_2darray(row_cnt, col_cnt, sizeof(int));
-	convert_list2array(lines, array2d, row_cnt, col_cnt);
-	array2d_to_object(array2d, obj, row_cnt, col_cnt);
+	row_col.y = load_into_list(file, &lines, &row_col.x);
+	array2d = (int **)new_2darray(row_col.y, row_col.x, sizeof(int));
+	convert_list2array(lines, array2d, row_col.y, row_col.x);
+	if (!(obj = array2d_to_object(array2d, row_col.y, row_col.x)))
+		return (NULL);
 	center_obj_originxy(obj);
 	apply_z_gradient(obj, 0x00FFFFFF, 0x00FF0000);
 	obj->pos_vector.position = vec3f(0, 0, -2 * obj->z_max);
 	return (obj);
 }
 
-void		setup_hooks(t_renderer *renderer)
+void				setup_hooks(t_renderer *renderer)
 {
 	mlx_hook(renderer->window, 2, 0, key_pressed, renderer);
 	mlx_hook(renderer->window, 4, 0, mouse_press_hook, renderer);
@@ -357,7 +389,7 @@ void		setup_hooks(t_renderer *renderer)
 	mlx_loop(renderer->mlx);
 }
 
-int			main(int argc, char **argv)
+int					main(int argc, char **argv)
 {
 	t_renderer	*fdf_renderer;
 	t_scene		*scene1;
