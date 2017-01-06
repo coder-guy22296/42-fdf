@@ -23,16 +23,22 @@ void	object_translation_controls(int keycode, t_renderer *renderer)
 	t_3d_object	*obj;
 	t_vec3fc	*pos;
 
-	obj = ((t_3d_object *)renderer->scene->objects->content);
+	obj = (renderer->scene->active_obj)
+		? ((t_3d_object *)renderer->scene->objects->content)
+		: ((t_3d_object *)renderer->scene->objects->next->content);
 	pos = &(obj->pos_vector.position);
 	if (keycode == UP)
-		*pos = translate_point(*pos, vec3f(0, 1, 0));
+		*pos = translate_point(*pos, vec3f(0, 5, 0));
 	else if (keycode == DOWN)
-		*pos = translate_point(*pos, vec3f(0, -1, 0));
+		*pos = translate_point(*pos, vec3f(0, -5, 0));
 	else if (keycode == LEFT)
-		*pos = translate_point(*pos, vec3f(-1, 0, 0));
+		*pos = translate_point(*pos, vec3f(-5, 0, 0));
 	else if (keycode == RIGHT)
-		*pos = translate_point(*pos, vec3f(1, 0, 0));
+		*pos = translate_point(*pos, vec3f(5, 0, 0));
+	else if (keycode == PAGE_UP)
+		*pos = translate_point(*pos, vec3f(0, 0, -5));
+	else if (keycode == PAGE_DOWN)
+		*pos = translate_point(*pos, vec3f(0, 0, 5));
 }
 
 /*
@@ -43,7 +49,9 @@ void	object_rotation_controls(int keycode, t_renderer *renderer)
 {
 	t_3d_object *obj;
 
-	obj = ((t_3d_object *)renderer->scene->objects->content);
+	obj = (renderer->scene->active_obj)
+		? ((t_3d_object *)renderer->scene->objects->content)
+		: ((t_3d_object *)renderer->scene->objects->next->content);
 	if (keycode == NUM_7)
 		rotate_object(obj, vec3f(0.0, 0.0, 3.14 / 64.0));
 	else if (keycode == NUM_9)
@@ -100,12 +108,14 @@ int		key_pressed(int keycode, void *param)
 		else
 			renderer->scene->projection_method = perspective_projection;
 	}
+	if (keycode == NUM_1)
+		renderer->scene->active_obj = (renderer->scene->active_obj) ? 0 : 1;
 	if (keycode == NUM_3)
 		renderer->scene->scale = translate_point(renderer->scene->scale,
-													vec3f(0.2, 0.2, 0.2));
+													vec3f(1, 1, 1));
 	if (keycode == NUM_DOT)
 		renderer->scene->scale = translate_point(renderer->scene->scale,
-													vec3f(-0.2, -0.2, -0.2));
+													vec3f(-1, -1, -1));
 	if (keycode == ESC)
 		exit(1);
 	return (0);

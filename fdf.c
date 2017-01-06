@@ -71,8 +71,9 @@ int		main(int argc, char **argv)
 	t_renderer	*fdf_renderer;
 	t_scene		*scene1;
 	t_3d_object	*obj;
+	t_3d_object	*obj2;
 
-	if (argc != 2)
+	if (argc != 2 && argc != 3)
 	{
 		ft_putstr("Usage: ./fdf <filename>\n");
 		return (0);
@@ -84,6 +85,9 @@ int		main(int argc, char **argv)
 									vec3f(0.0, 0.0, 0.0)), vec3f(0, 0, 4));
 	obj = load_wireframe(argv[1]);
 	add_object(scene1, obj);
+	obj2 = load_wireframe(argv[2]);
+	obj2->pos_vector.position = vec3f(100, 0, -150);
+	add_object(scene1, obj2);
 	fdf_renderer->scene = scene1;
 	setup_hooks(fdf_renderer);
 	return (0);
