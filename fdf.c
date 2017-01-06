@@ -28,6 +28,10 @@ void	**new_2darray(int rows, int columns, size_t element_size)
 	return (array_2d);
 }
 
+/*
+**	Event Hook for rendering
+*/
+
 int		render_loop(void *param)
 {
 	t_renderer	*renderer;
@@ -40,6 +44,10 @@ int		render_loop(void *param)
 	return (0);
 }
 
+/*
+**	Set all the event hooks
+*/
+
 void	setup_hooks(t_renderer *renderer)
 {
 	mlx_hook(renderer->window, 2, 0, key_pressed, renderer);
@@ -49,6 +57,10 @@ void	setup_hooks(t_renderer *renderer)
 	mlx_loop_hook(renderer->mlx, render_loop, renderer);
 	mlx_loop(renderer->mlx);
 }
+
+/*
+**	FDF Entry Point
+*/
 
 int		main(int argc, char **argv)
 {
