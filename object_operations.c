@@ -12,6 +12,10 @@
 
 #include "fdf.h"
 
+/*
+**	Centers the origin of a 3d model in the x and y axis
+*/
+
 void	center_obj_originxy(t_3d_object *object)
 {
 	float	max_x;
@@ -37,6 +41,10 @@ void	center_obj_originxy(t_3d_object *object)
 		i--;
 	}
 }
+
+/*
+**	Applies a color gradient to the points based on altitude
+*/
 
 void	apply_z_gradient(t_3d_object *obj, int color_low, int color_high)
 {

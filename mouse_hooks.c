@@ -12,6 +12,11 @@
 
 #include "fdf.h"
 
+/*
+**	Hooks for mouse related events
+**	these events control camera rotation about x and y
+*/
+
 int		mouse_press_hook(int button, int x, int y, void *param)
 {
 	t_renderer	*renderer;

@@ -13,6 +13,10 @@
 #include "fdf.h"
 #include <fcntl.h>
 
+/*
+**	3d object constructor for a wireframe of specified vertices per face
+*/
+
 t_3d_object	*new_fdf_wireframe(int faces, int verticies, int verts_per_face)
 {
 	t_3d_object *obj;
@@ -30,6 +34,10 @@ t_3d_object	*new_fdf_wireframe(int faces, int verticies, int verts_per_face)
 		return (NULL);
 	return (obj);
 }
+
+/*
+**	loads fdf wireframe from file into a 3d object (Main FDF Loading function)
+*/
 
 t_3d_object	*load_wireframe(char *filename)
 {

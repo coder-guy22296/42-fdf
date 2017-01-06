@@ -12,6 +12,10 @@
 
 #include "fdf.h"
 
+/*
+**	allocates and zeros a 2d array of a specified element
+*/
+
 void	**new_2darray(int rows, int columns, size_t element_size)
 {
 	void	**array_2d;

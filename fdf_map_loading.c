@@ -12,6 +12,10 @@
 
 #include "fdf.h"
 
+/*
+**	Load an fdf file into a linked list of arrays of strings
+*/
+
 int			load_into_list(int fd, t_list **lines, int *max_column_cnt)
 {
 	char		*line;
@@ -35,6 +39,10 @@ int			load_into_list(int fd, t_list **lines, int *max_column_cnt)
 	}
 	return (line_cnt);
 }
+
+/*
+**	Converts a linked list of arrays of strings into a 2d array of integers
+*/
 
 void		convert_list2array(t_list *lines, int **arr2d,
 								int rows, int columns)
@@ -66,6 +74,10 @@ void		convert_list2array(t_list *lines, int **arr2d,
 	}
 }
 
+/*
+**	Sets the minimum and maximum z values for a specified object
+*/
+
 static void	set_min_max_z(t_3d_object *obj, int x, int y, int z)
 {
 	if ((z > obj->z_max || (x == 0 && y == 0))
@@ -76,6 +88,10 @@ static void	set_min_max_z(t_3d_object *obj, int x, int y, int z)
 		obj->z_min = z;
 }
 
+/*
+**	sets the line draw order for a square in the wireframe
+*/
+
 static void	set_object_vert_indices(t_3d_object *obj, int cur_vert,
 											int cols, int *cur_face_vert)
 {
@@ -85,6 +101,10 @@ static void	set_object_vert_indices(t_3d_object *obj, int cur_vert,
 	obj->vertex_ind[(*cur_face_vert)++] = cur_vert + cols;
 	obj->vertex_ind[(*cur_face_vert)++] = cur_vert + cols + 1;
 }
+
+/*
+**	converts 2d int array into my 3d model struct
+*/
 
 t_3d_object	*array2d_to_object(int **arr2d, int rows, int cols)
 {

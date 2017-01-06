@@ -13,6 +13,11 @@
 #include "fdf.h"
 #include <stdlib.h>
 
+/*
+**	Controls for moving the object in 3d space
+**	only x and y movement controls for now
+*/
+
 void	object_translation_controls(int keycode, t_renderer *renderer)
 {
 	t_3d_object	*obj;
@@ -29,6 +34,10 @@ void	object_translation_controls(int keycode, t_renderer *renderer)
 	else if (keycode == RIGHT)
 		*pos = translate_point(*pos, vec3f(1, 0, 0));
 }
+
+/*
+**	Controls for rotating an object about its origin
+*/
 
 void	object_rotation_controls(int keycode, t_renderer *renderer)
 {
@@ -49,6 +58,10 @@ void	object_rotation_controls(int keycode, t_renderer *renderer)
 		rotate_object(obj, vec3f(0.0, -3.14 / 64.0, 0.0));
 }
 
+/*
+**	Controls for moving the camera in full 3d space
+*/
+
 void	camera_translation_controls(int keycode, t_renderer *renderer)
 {
 	t_vec3fc	*pos;
@@ -67,6 +80,10 @@ void	camera_translation_controls(int keycode, t_renderer *renderer)
 	else if (keycode == F)
 		*pos = translate_point(*pos, vec3f(0, -5, 0));
 }
+
+/*
+**	Hook that handles key presses and delegates to functions above
+*/
 
 int		key_pressed(int keycode, void *param)
 {
