@@ -12,6 +12,7 @@
 
 #include "fdf.h"
 #include <fcntl.h>
+#include <stdlib.h>
 
 /*
 **	3d object constructor for a wireframe of specified vertices per face
@@ -48,7 +49,10 @@ t_3d_object	*load_wireframe(char *filename)
 	int			file;
 
 	if ((file = open(filename, O_RDONLY)) == -1)
-		return (NULL);
+	{
+		ft_putstr("bad file!\n");
+		exit(1);
+	}
 	row_col.y = load_into_list(file, &lines, &row_col.x);
 	array2d = (int **)new_2darray(row_col.y, row_col.x, sizeof(int));
 	convert_list2array(lines, array2d, row_col.y, row_col.x);

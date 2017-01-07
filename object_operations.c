@@ -57,9 +57,11 @@ void	apply_z_gradient(t_3d_object *obj, int color_low, int color_high)
 	i = obj->vertex_cnt - 1;
 	while (i >= 0)
 	{
-		percent = (obj->vertices[i].z + fabsf(obj->z_min)) / magnitude;
+		percent = (magnitude != 0.000000)
+				? (obj->vertices[i].z + fabsf(obj->z_min)) / magnitude : 0.000;
 		color = blend(color_low, color_high, percent);
-		obj->vertices[i].color = color;
+		obj->vertices[i].color = (obj->vertices[i].z != -2147483648)
+								? color : 0x4F000000;
 		i--;
 	}
 }

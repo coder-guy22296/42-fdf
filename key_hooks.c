@@ -108,7 +108,7 @@ int		key_pressed(int keycode, void *param)
 		else
 			renderer->scene->projection_method = perspective_projection;
 	}
-	if (keycode == NUM_1)
+	if (keycode == NUM_1 && renderer->scene->active_obj != -99)
 		renderer->scene->active_obj = (renderer->scene->active_obj) ? 0 : 1;
 	if (keycode == NUM_3)
 		renderer->scene->scale = translate_point(renderer->scene->scale,

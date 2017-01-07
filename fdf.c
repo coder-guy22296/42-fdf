@@ -16,7 +16,7 @@
 **	allocates and zeros a 2d array of a specified element
 */
 
-void	**new_2darray(int rows, int columns, size_t element_size)
+void		**new_2darray(int rows, int columns, size_t element_size)
 {
 	void	**array_2d;
 	int		row;
@@ -36,7 +36,7 @@ void	**new_2darray(int rows, int columns, size_t element_size)
 **	Event Hook for rendering
 */
 
-int		render_loop(void *param)
+int			render_loop(void *param)
 {
 	t_renderer	*renderer;
 
@@ -52,7 +52,7 @@ int		render_loop(void *param)
 **	Set all the event hooks
 */
 
-void	setup_hooks(t_renderer *renderer)
+void		setup_hooks(t_renderer *renderer)
 {
 	mlx_hook(renderer->window, 2, 0, key_pressed, renderer);
 	mlx_hook(renderer->window, 4, 0, mouse_press_hook, renderer);
@@ -63,31 +63,48 @@ void	setup_hooks(t_renderer *renderer)
 }
 
 /*
+**	Load apropriate number of 3d models from file
+*/
+
+static void	handle_load_multiple_objects(int argc, char **argv,
+										t_3d_object **obj1, t_3d_object **obj2)
+{
+	if (argc == 2 || argc == 3)
+		*obj1 = load_wireframe(argv[1]);
+	if (argc == 3)
+	{
+		*obj2 = load_wireframe(argv[2]);
+		(*obj2)->pos_vector.position = vec3f(50, 0, -150);
+	}
+}
+
+/*
 **	FDF Entry Point
 */
 
-int		main(int argc, char **argv)
+int			main(int argc, char **argv)
 {
 	t_renderer	*fdf_renderer;
 	t_scene		*scene1;
-	t_3d_object	*obj;
+	t_3d_object	*obj1;
 	t_3d_object	*obj2;
 
 	if (argc != 2 && argc != 3)
 	{
-		ft_putstr("Usage: ./fdf <filename>\n");
+		ft_putstr("Usage: ./fdf <filename> [<filename>]\n");
 		return (0);
 	}
+	obj1 = 0;
+	obj2 = 0;
 	fdf_renderer = new_renderer(render_scene);
 	add_window(fdf_renderer, 1000, 1000, "cyildiri's fdf");
 	scene1 = new_scene(perspective_projection, 1000, 1000);
 	scene1->camera = new_camera(vec6f(vec3f(0, 0, 150),
 									vec3f(0.0, 0.0, 0.0)), vec3f(0, 0, 4));
-	obj = load_wireframe(argv[1]);
-	add_object(scene1, obj);
-	obj2 = load_wireframe(argv[2]);
-	obj2->pos_vector.position = vec3f(100, 0, -150);
-	add_object(scene1, obj2);
+	handle_load_multiple_objects(argc, argv, &obj1, &obj2);
+	(obj1) ? add_object(scene1, obj1) : 0;
+	(obj2) ? add_object(scene1, obj2) : 0;
+	scene1->active_obj = (argc == 2) ? -99 : 0;
 	fdf_renderer->scene = scene1;
 	setup_hooks(fdf_renderer);
 	return (0);
