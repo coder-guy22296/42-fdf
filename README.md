@@ -9,3 +9,11 @@ I built a Graphics library and used it to build this 3d wireframe renderer, that
 - make && ./fdf my42.fdf 42.fdf
 - if that last one doesn't work try this one:
 - make re && ./fdf my42.fdf 42.fdf
+
+
+# Controls (all movement controls currently move along the x y and z axis)
+- Move Camera: W,A,S,D,R and F Keys
+- Rotate Camera: click and drag the mouse
+- Move Selected object: arrow keys and page up/page down
+- Rotate Selected object: NUMPAD 4 to NUMPAD 9
+- Change Selected object: NUMPAD 1
