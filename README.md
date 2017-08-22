@@ -3,13 +3,13 @@ I built a Graphics library and used it to build this 3d wireframe renderer, that
 
 # Demo Instructions (Mac OSX El Capitan)
 - open Terminal and run commands below
-- git clone https://github.com/coder-guy22296/42-fdf
-- git submodule init
-- git submodule update
-- make && ./fdf my42.fdf 42.fdf
-- if that last one doesn't work try this one:
-- make re && ./fdf my42.fdf 42.fdf
-
+- git clone https://github.com/coder-guy22296/42-fdf fdf
+- cd fdf
+- make
+- *Usage: ./fdf \<filename\> [\<filename\>]*
+- ./fdf my42.fdf
+- **or**
+- ./fdf my42.fdf 42.fdf
 
 # Controls (all movement controls currently move along the x y and z axis)
 - Move Camera: W,A,S,D,R and F Keys
@@ -17,3 +17,6 @@ I built a Graphics library and used it to build this 3d wireframe renderer, that
 - Move Selected object: arrow keys and page up/page down
 - Rotate Selected object: NUMPAD 4 to NUMPAD 9
 - Change Selected object: NUMPAD 1
+
+<img src="http://coderguydev.com:3000/images/fdf2.png" width=84% height=84% />
+<img src="http://coderguydev.com:3000/images/fdf1.png" width=84% height=84% />
